@@ -18,15 +18,14 @@ pub enum TokenKind {
     Slash, // /
     ReverSlash, // \
     Percent, // %
-    Equal, // =
 
     Question, // ?
     Exclamation, // !
 
     At, // @
 
-    And, // &
-    Or, // |
+    LogicalConjunction, // &
+    LogicalDisjunction, // |
     Xor, // ^
    
     DoubleQuote, // "
@@ -45,15 +44,13 @@ pub enum TokenKind {
     GreaterThan,
     GreaterThanOrEqual,
 
-    AndAssign,
-    OrAssign,
-    PlusAssign,
-    MinusAssign,
-    MultiplyAssign,
-    DivideAssign,
+    Assign,
+    EqualTo,
 
     BitwiseAnd,
     BitwiseOr,
+    BitwiseShiftRight,
+    BitwiseShiftLeft,
 
     EOF, // \u{0}
 }

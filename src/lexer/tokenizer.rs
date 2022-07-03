@@ -53,7 +53,7 @@ impl<'a> Lexer<'a> {
 					b'/' => self.slash(),
 					b'\\' => Some(TokenKind::ReverSlash),
 					b'%' => Some(TokenKind::Percent),
-					b'=' => Some(TokenKind::Equal),
+					b'=' => self.equal(),
 
 					b'?' => Some(TokenKind::Question),
 					b'!' => self.excalmation(),
@@ -124,6 +124,10 @@ impl<'a> Lexer<'a> {
                     self.read();
                     Some(TokenKind::LessThanOrEqual)
                 },
+                b'<' => {
+                    self.read();
+                    Some(TokenKind::BitwiseShiftLeft)
+                },
                 _ => Some(TokenKind::AngleOpen)
             }
         }else{
@@ -138,10 +142,28 @@ impl<'a> Lexer<'a> {
                     self.read();
                     Some(TokenKind::GreaterThanOrEqual)
                 },
+                b'>' => {
+                    self.read();
+                    Some(TokenKind::BitwiseShiftRight)
+                },
                 _ => Some(TokenKind::AngleClose)
             }
         }else{
             Some(TokenKind::AngleClose)
+        }
+    }
+
+    fn equal(&mut self) -> Option<TokenKind> {
+        if let Some(c) = self.peek() {
+            match c {
+                b'=' => {
+                    self.read();
+                    Some(TokenKind::EqualTo)
+                },
+                _ => Some(TokenKind::Assign)
+            }
+        }else{
+            Some(TokenKind::Assign)
         }
     }
 
@@ -150,11 +172,7 @@ impl<'a> Lexer<'a> {
             match c {
                 b'&' => {
                     self.read();
-                    Some(TokenKind::And)
-                },
-                b'=' => {
-                    self.read();
-                    Some(TokenKind::AndAssign)
+                    Some(TokenKind::LogicalConjunction)
                 },
                 _ => Some(TokenKind::BitwiseAnd)
             }
@@ -168,11 +186,7 @@ impl<'a> Lexer<'a> {
             match c {
                 b'|' => {
                     self.read();
-                    Some(TokenKind::Or)
-                },
-                b'=' => {
-                    self.read();
-                    Some(TokenKind::OrAssign)
+                    Some(TokenKind::LogicalDisjunction)
                 },
                 _ => Some(TokenKind::BitwiseOr)
             }

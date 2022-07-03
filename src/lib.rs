@@ -77,7 +77,7 @@ mod tests {
         assert_eq!(lexer.tokenize(), Some(TokenKind::Percent));
 
         assert_eq!(lexer.peek(), Some(b'='));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Equal));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Assign));
 
         assert_eq!(lexer.peek(), Some(b'?'));
         assert_eq!(lexer.tokenize(), Some(TokenKind::Question));
@@ -166,13 +166,13 @@ mod tests {
         assert_eq!(lexer.tokenize(), Some(TokenKind::Plus));
         assert_eq!(lexer.tokenize(), Some(TokenKind::NotEqual));
         assert_eq!(lexer.tokenize(), Some(TokenKind::Exclamation));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Equal));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Assign));
         assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseAnd));
     }
 
     #[test]
     fn test_tokenize_lte_gte() {
-        let code = "<<=@>>=  <  >";
+        let code = "< <=@> >=  <  >";
         let mut lexer = Lexer::new(code);
 
         assert_eq!(lexer.tokenize(), Some(TokenKind::AngleOpen));
@@ -185,6 +185,38 @@ mod tests {
     }
 
     #[test]
+    fn test_tokenize_bitshift() {
+        let code = "<<=@>>=  <  > <<< <=";
+        let mut lexer = Lexer::new(code);
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseShiftLeft));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Assign));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::At));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseShiftRight));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Assign));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::AngleOpen));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::AngleClose));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseShiftLeft));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::AngleOpen));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::LessThanOrEqual));
+    }
+
+    #[test]
+    fn test_tokenize_equal() {
+        let code = "= == @ = @ == ===";
+        let mut lexer = Lexer::new(code);
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Assign));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::EqualTo));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::At));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Assign));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::At));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::EqualTo));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::EqualTo));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Assign));
+    }
+
+    #[test]
     fn test_tokenize_and_or() {
         let code = "@ & @ @ && @ &= | | || @ |=|";
         let mut lexer = Lexer::new(code);
@@ -193,14 +225,16 @@ mod tests {
         assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseAnd));
         assert_eq!(lexer.tokenize(), Some(TokenKind::At));
         assert_eq!(lexer.tokenize(), Some(TokenKind::At));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::And));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::LogicalConjunction));
         assert_eq!(lexer.tokenize(), Some(TokenKind::At));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::AndAssign));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseAnd));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Assign));
         assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseOr));
         assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseOr));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Or));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::LogicalDisjunction));
         assert_eq!(lexer.tokenize(), Some(TokenKind::At));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::OrAssign));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseOr));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Assign));
         assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseOr));
     }
 
