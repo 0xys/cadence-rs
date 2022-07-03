@@ -301,13 +301,17 @@ mod tests {
 
     #[test]
     fn test_tokenize_double_quote() {
-        let code = "\"\" \"h\" \"1  anvcd*'_d\" \"\\\"  \"";
+        // `` `h` `1  anvcd*'_d` `"` `\n` `"hello\nworld"` `<EOF>
+        let code = "\"\" \"h\" \"1  anvcd*'_d\" \"\\\"\" \"\\n\" \"\\\\\" \"\\\"hello\\nworld\\\"\" \"";
         let mut lexer = Lexer::new(code);
 
         assert_eq!(lexer.tokenize(), Some(TokenKind::String("".to_string())));
         assert_eq!(lexer.tokenize(), Some(TokenKind::String("h".to_string())));
         assert_eq!(lexer.tokenize(), Some(TokenKind::String("1  anvcd*'_d".to_string())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::String("\"".to_string())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::String("\n".to_string())));
         assert_eq!(lexer.tokenize(), Some(TokenKind::String("\\".to_string())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::String("\"hello\nworld\"".to_string())));
         assert_eq!(lexer.tokenize(), Some(TokenKind::DoubleQuote));
     }
 }

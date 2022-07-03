@@ -201,21 +201,32 @@ impl<'a> Lexer<'a> {
     }
 
     fn double_quote(&mut self) -> Option<TokenKind> {
-        let start = self.position;
+        let mut chars = Vec::new();
 
         while let Some(c) = self.peek() {
             self.read();
+
+            //  handle escape
+            if c == b'\\' {
+                if let Some(e) = self.read_escaped_char() {
+                    chars.push(e);
+                } else {
+                    chars.push(b'\\');
+                }
+                continue;
+            }
+            chars.push(c);
 
             if c == b'"' {
                 break;
             }
         }
 
-        if self.position == start {
+        if chars.len() == 0 {
             return Some(TokenKind::DoubleQuote)
         }
 
-        let str = String::from_utf8(self.input[start..(self.position-1)].to_owned()).unwrap();
+        let str = String::from_utf8(chars[0..chars.len()-1].to_owned()).unwrap();
         Some(TokenKind::String(str))
     }
 
@@ -320,6 +331,19 @@ impl<'a> Lexer<'a> {
         None
     }
 
+    fn read_escaped_char(&mut self) -> Option<u8> {
+        if let Some(e) = self.peek() {
+            self.read();
+            return match e {
+                b'n' => Some(b'\n'),
+                b'\\' => Some(b'\\'),
+                b'"' => Some(b'"'),
+                _ => None,
+            }
+        }
+        None
+    }
+
     fn is_letter(c: u8) -> bool {
         c.is_ascii_alphabetic() || c == b'_'
     }
@@ -332,4 +356,5 @@ impl<'a> Lexer<'a> {
         (c >= b'0' && c <= b'9') || (c >= b'a' && c <= b'f') || (c >= b'A' && c <= b'F')
     }
 
+    
 }
