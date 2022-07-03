@@ -2,7 +2,7 @@ pub mod lexer;
 
 #[cfg(test)]
 mod tests {    
-    use crate::lexer::tokenizer::Lexer;
+    use crate::lexer::lexer::Lexer;
     use crate::lexer::token::TokenKind;
 
     #[test]
