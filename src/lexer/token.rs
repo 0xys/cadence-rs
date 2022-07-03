@@ -39,5 +39,21 @@ pub enum TokenKind {
     Alphabet,
     Symbol,
 
+    NotEqual,
+    LessThan,
+    LessThanOrEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
+
+    AndAssign,
+    OrAssign,
+    PlusAssign,
+    MinusAssign,
+    MultiplyAssign,
+    DivideAssign,
+
+    BitwiseAnd,
+    BitwiseOr,
+
     EOF, // \u{0}
 }

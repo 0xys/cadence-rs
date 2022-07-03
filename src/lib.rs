@@ -89,10 +89,10 @@ mod tests {
         assert_eq!(lexer.tokenize(), Some(TokenKind::At));
 
         assert_eq!(lexer.peek(), Some(b'&'));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::And));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseAnd));
 
         assert_eq!(lexer.peek(), Some(b'|'));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Or));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseOr));
 
         assert_eq!(lexer.peek(), Some(b'^'));
         assert_eq!(lexer.tokenize(), Some(TokenKind::Xor));
@@ -145,4 +145,63 @@ mod tests {
         assert_eq!(lexer.peek(), Some(b' '));
         assert_eq!(lexer.tokenize(), None);
     }
+
+    #[test]
+    fn test_skip_line_comments() {
+        let code = "+//abv/\n/{///)\n/";
+        let mut lexer = Lexer::new(code);
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Plus));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Slash));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BraceOpen));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Slash));
+    }
+
+    #[test]
+    fn test_tokenize_neq() {
+        let code = "!+!= ! =&";
+        let mut lexer = Lexer::new(code);
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Exclamation));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Plus));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::NotEqual));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Exclamation));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Equal));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseAnd));
+    }
+
+    #[test]
+    fn test_tokenize_lte_gte() {
+        let code = "<<=@>>=  <  >";
+        let mut lexer = Lexer::new(code);
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::AngleOpen));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::LessThanOrEqual));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::At));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::AngleClose));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::GreaterThanOrEqual));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::AngleOpen));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::AngleClose));
+    }
+
+    #[test]
+    fn test_tokenize_and_or() {
+        let code = "@ & @ @ && @ &= | | || @ |=|";
+        let mut lexer = Lexer::new(code);
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::At));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseAnd));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::At));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::At));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::And));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::At));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::AndAssign));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseOr));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseOr));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Or));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::At));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::OrAssign));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseOr));
+    }
+
 }
