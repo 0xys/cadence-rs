@@ -71,7 +71,7 @@ mod tests {
         assert_eq!(lexer.tokenize(), Some(TokenKind::Slash));
 
         assert_eq!(lexer.peek(), Some(b'\\'));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::ReverSlash));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Backslash));
 
         assert_eq!(lexer.peek(), Some(b'%'));
         assert_eq!(lexer.tokenize(), Some(TokenKind::Percent));

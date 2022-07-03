@@ -60,7 +60,7 @@ impl<'a> Lexer<'a> {
 					b'-' => Some(TokenKind::Minus),
 					b'*' => Some(TokenKind::Asterisk),
 					b'/' => self.slash(),
-					b'\\' => Some(TokenKind::ReverSlash),
+					b'\\' => Some(TokenKind::Backslash),
 					b'%' => Some(TokenKind::Percent),
 					b'=' => self.equal(),
 

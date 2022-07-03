@@ -16,7 +16,7 @@ pub enum TokenKind {
     Minus, // -
     Asterisk, // *
     Slash, // /
-    ReverSlash, // \
+    Backslash, // \
     Percent, // %
 
     Question, // ?
