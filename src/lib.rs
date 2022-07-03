@@ -238,4 +238,36 @@ mod tests {
         assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseOr));
     }
 
+    #[test]
+    fn test_tokenize_identifier() {
+        let code = ". abc AbC 0 123 a1 a_3 3.1 1.a a&1 abc. _d3";
+        let mut lexer = Lexer::new(code);
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("abc".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("AbC".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("0".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("123".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("a1".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("a_3".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("3.1".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("1.".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("a".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("a".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseAnd));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("1".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("abc".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("_d3".to_owned())));
+    }
+
 }

@@ -34,10 +34,6 @@ pub enum TokenKind {
     SemiColon, // ;
     Colon, // :
 
-    Digit,
-    Alphabet,
-    Symbol,
-
     NotEqual,
     LessThan,
     LessThanOrEqual,
@@ -51,6 +47,10 @@ pub enum TokenKind {
     BitwiseOr,
     BitwiseShiftRight,
     BitwiseShiftLeft,
+
+    Identifier(String),
+
+    As,
 
     EOF, // \u{0}
 }

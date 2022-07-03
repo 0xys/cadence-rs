@@ -3,11 +3,16 @@ use super::token::TokenKind;
 pub struct Lexer<'a> {
     input: &'a[u8],
     position: usize,
+    last_char: u8,
 }
 
 impl<'a> Lexer<'a> {
     pub fn new(input: &'a str) -> Self {
-        Self { input: input.as_bytes(), position: 0 }
+        Self {
+            input: input.as_bytes(),
+            position: 0,
+            last_char: 0,
+        }
     }
 
     pub fn peek(&self) -> Option<u8> {
@@ -20,10 +25,12 @@ impl<'a> Lexer<'a> {
 
 	pub fn read(&mut self) -> Option<u8> {
 		if self.position >= self.input.len() {
+            self.last_char = 0;
 			return None
 		} else {
 			let pos = self.position;
 			self.position += 1;
+            self.last_char = self.input[pos];
 			return Some(self.input[pos])
 		}
 	}
@@ -69,24 +76,20 @@ impl<'a> Lexer<'a> {
 
 					b';' => Some(TokenKind::SemiColon),
 					b':' => Some(TokenKind::Colon),
-					_ => None,
+					_ => self.alphanumeric(),
 				}
 			}
 		}
 	}
 
 	fn skip_spaces(&mut self) {
-		loop {
-			if let Some(c) = self.peek() {
-				if c == b' ' {
-					self.read();
-				}else{
-					break;
-				}
-			}else{
-				break;
-			}
-		}
+        while let Some(c) = self.peek() {
+            if c == b' ' {
+                self.read();
+            }else{
+                break;
+            }
+        }
 	}
 
     fn slash(&mut self) -> Option<TokenKind> {
@@ -195,16 +198,71 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    fn alphanumeric(&mut self) -> Option<TokenKind> {
+        if let Some(letters) = self.read_chars(self.last_char) {
+            let identifier = String::from_utf8(letters).unwrap();
+            return Some(TokenKind::Identifier(identifier))
+        }
+        None
+    }
+
+    fn read_chars(&mut self, begin_char: u8) -> Option<Vec<u8>> {
+        let mut chars = Vec::new();
+        chars.push(begin_char);
+
+        if Self::is_letter(begin_char) {
+            while let Some(c) = self.read_letter() {
+                chars.push(c);
+            }
+            return Some(chars);
+        } else if Self::is_decimal_digit(begin_char) {
+            while let Some(n) = self.read_numeric_or_dot() {
+                chars.push(n);
+            }
+            return Some(chars);
+        } else {
+            None
+        }
+    }
+
     fn skip_till_eol(&mut self) {
-        loop {
-            if let Some(c) = self.read() {
-                if c == b'\n' {
-                    break;
-                }
-            }else{
+        while let Some(c) = self.read() {
+            if c == b'\n' {
                 break;
             }
         }
+    }
+
+    fn read_numeric_or_dot(&mut self) -> Option<u8> {
+        if let Some(c) = self.peek() {
+            if Self::is_decimal_digit(c) || c == b'.' {
+                self.read();
+                return Some(c);
+            }
+        }
+        None
+    }
+
+    fn read_letter(&mut self) -> Option<u8> {
+        if let Some(c) = self.peek() {
+            if Self::is_letter(c) || Self::is_decimal_digit(c) {
+                self.read();
+                return Some(c);
+            }
+        }
+        None
+    }
+
+    fn is_letter(c: u8) -> bool {
+        c.is_ascii_alphabetic() || c == b'_'
+    }
+
+    fn is_decimal_digit(c: u8) -> bool {
+        c >= b'0' && c <= b'9'
+    }
+
+    fn is_hex_nible(c: u8) -> bool {
+        (c >= b'0' && c <= b'9') || (c >= b'a' && c <= b'f') || (c >= b'A' && c <= b'F')
     }
 
 }
