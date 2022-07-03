@@ -17,10 +17,14 @@ impl<'a> Lexer<'a> {
 
     /// get next character without consuming
     pub fn peek(&self) -> Option<u8> {
-		if self.position >= self.input.len() {
+		self.peekn(0)
+    }
+
+    pub fn peekn(&self, n: usize) -> Option<u8> {
+        if self.position + n >= self.input.len() {
 			return None
 		} else {
-			return Some(self.input[self.position])
+			return Some(self.input[self.position + n])
 		}
     }
 
@@ -38,7 +42,7 @@ impl<'a> Lexer<'a> {
 	}
 
 	pub fn tokenize(&mut self) -> Option<TokenKind> {
-		self.skip_spaces();
+		self.read_spaces();
 
 		match self.read() {
 			None => None,
@@ -54,7 +58,7 @@ impl<'a> Lexer<'a> {
 					b'>' => self.angle_close(),
 
 					b',' => Some(TokenKind::Comma),
-					b'.' => Some(TokenKind::Period),
+					b'.' => self.period(),
 
 					b'+' => Some(TokenKind::Plus),
 					b'-' => Some(TokenKind::Minus),
@@ -84,15 +88,31 @@ impl<'a> Lexer<'a> {
 		}
 	}
 
-	fn skip_spaces(&mut self) {
+	fn read_spaces(&mut self) -> usize {
+        let mut count = 0;
         while let Some(c) = self.peek() {
             if c == b' ' {
                 self.read();
+                count += 1;
             }else{
                 break;
             }
         }
+        count
 	}
+
+    fn peek_spaces(&mut self, offset: usize) -> usize {
+        let mut count = 0;
+        while let Some(c) = self.peekn(offset + count) {
+            println!("peeks: {:?}", c as char);
+            if c == b' ' {
+                count += 1;
+            }else{
+                break;
+            }
+        }
+        count
+    }
 
     fn slash(&mut self) -> Option<TokenKind> {
         if let Some(c) = self.peek() {
@@ -200,6 +220,14 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    fn period(&mut self) -> Option<TokenKind> {
+        if self.read_spaces() == 0 {
+            Some(TokenKind::Period)
+        } else {
+            None
+        }
+    }
+
     fn double_quote(&mut self) -> Option<TokenKind> {
         let mut chars = Vec::new();
 
@@ -293,9 +321,21 @@ impl<'a> Lexer<'a> {
 
     fn read_numeric_or_dot(&mut self) -> Option<u8> {
         if let Some(c) = self.peek() {
-            if Self::is_decimal_digit(c) || c == b'.' {
+            if Self::is_decimal_digit(c) {
                 self.read();
                 return Some(c)
+            }
+
+            if c == b'.' {
+                // to ensure no whitespace after period
+                if self.peek_spaces(1) == 0 {
+                    println!("yes: {:?}", c);
+                    self.read();
+                    return Some(b'.')
+                } else {
+                    println!("no: {:?}", c);
+                    return None
+                }
             }
         }
         None

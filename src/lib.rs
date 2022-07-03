@@ -114,39 +114,6 @@ mod tests {
     }
 
     #[test]
-    fn it_works_3() {
-        let code = ".. .  .   .    .     .      .    ";
-        let mut lexer = Lexer::new(code);
-
-        assert_eq!(lexer.peek(), Some(b'.'));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
-
-        assert_eq!(lexer.peek(), Some(b'.'));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
-
-        assert_eq!(lexer.peek(), Some(b' '));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
-
-        assert_eq!(lexer.peek(), Some(b' '));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
-
-        assert_eq!(lexer.peek(), Some(b' '));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
-
-        assert_eq!(lexer.peek(), Some(b' '));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
-
-        assert_eq!(lexer.peek(), Some(b' '));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
-
-        assert_eq!(lexer.peek(), Some(b' '));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
-
-        assert_eq!(lexer.peek(), Some(b' '));
-        assert_eq!(lexer.tokenize(), None);
-    }
-
-    #[test]
     fn test_skip_line_comments() {
         let code = "+//abv/\n/{///)\n/";
         let mut lexer = Lexer::new(code);
@@ -240,10 +207,10 @@ mod tests {
 
     #[test]
     fn test_tokenize_identifier() {
-        let code = ". abc AbC 0 123 a1 a_3 3.1 1.a a&1 abc. _d3";
+        let code = ". abc AbC 0 123 a1 a_3 3.1 1.a a&1 abc. _d3 123. 2";
         let mut lexer = Lexer::new(code);
 
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
+        assert_eq!(lexer.tokenize(), None); // period with whitespaces are None
         assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("abc".to_string())));
 
         assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("AbC".to_string())));
@@ -266,8 +233,12 @@ mod tests {
         assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("1".to_string())));
 
         assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("abc".to_string())));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
+        assert_eq!(lexer.tokenize(), None);
         assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("_d3".to_string())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("123".to_string())));
+        assert_eq!(lexer.tokenize(), None); // period with whitespaces are None
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("2".to_string())));
     }
 
     #[test]
