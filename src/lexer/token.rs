@@ -1,3 +1,4 @@
+#[derive(Clone, Debug, PartialEq)]
 pub enum TokenKind {
     ParenOpen, // (
     ParenClose, // )
