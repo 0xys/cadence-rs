@@ -104,7 +104,6 @@ impl<'a> Lexer<'a> {
     fn peek_spaces(&mut self, offset: usize) -> usize {
         let mut count = 0;
         while let Some(c) = self.peekn(offset + count) {
-            println!("peeks: {:?}", c as char);
             if c == b' ' {
                 count += 1;
             }else{
@@ -329,11 +328,9 @@ impl<'a> Lexer<'a> {
             if c == b'.' {
                 // to ensure no whitespace after period
                 if self.peek_spaces(1) == 0 {
-                    println!("yes: {:?}", c);
                     self.read();
                     return Some(b'.')
                 } else {
-                    println!("no: {:?}", c);
                     return None
                 }
             }
