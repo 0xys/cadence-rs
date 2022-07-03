@@ -48,6 +48,7 @@ pub enum TokenKind {
     BitwiseShiftRight,
     BitwiseShiftLeft,
 
+    String(String),
     Identifier(String),
 
     As,

@@ -73,7 +73,7 @@ impl<'a> Lexer<'a> {
 					b'|' => self.or(),
 					b'^' => Some(TokenKind::Xor),
 
-					b'"' => Some(TokenKind::DoubleQuote),
+					b'"' => self.double_quote(),
 					b'\'' => Some(TokenKind::SingleQuote),
 
 					b';' => Some(TokenKind::SemiColon),
@@ -198,6 +198,25 @@ impl<'a> Lexer<'a> {
         }else{
             Some(TokenKind::BitwiseOr)
         }
+    }
+
+    fn double_quote(&mut self) -> Option<TokenKind> {
+        let start = self.position;
+
+        while let Some(c) = self.peek() {
+            self.read();
+
+            if c == b'"' {
+                break;
+            }
+        }
+
+        if self.position == start {
+            return Some(TokenKind::DoubleQuote)
+        }
+
+        let str = String::from_utf8(self.input[start..(self.position-1)].to_owned()).unwrap();
+        Some(TokenKind::String(str))
     }
 
     fn alphanumeric(&mut self) -> Option<TokenKind> {

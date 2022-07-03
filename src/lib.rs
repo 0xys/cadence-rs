@@ -97,8 +97,8 @@ mod tests {
         assert_eq!(lexer.peek(), Some(b'^'));
         assert_eq!(lexer.tokenize(), Some(TokenKind::Xor));
 
-        assert_eq!(lexer.peek(), Some(b'"'));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::DoubleQuote));
+        assert_eq!(lexer.read(), Some(b'"'));
+        // assert_eq!(lexer.tokenize(), Some(TokenKind::DoubleQuote));
 
         assert_eq!(lexer.peek(), Some(b'\''));
         assert_eq!(lexer.tokenize(), Some(TokenKind::SingleQuote));
@@ -244,30 +244,30 @@ mod tests {
         let mut lexer = Lexer::new(code);
 
         assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("abc".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("abc".to_string())));
 
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("AbC".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("AbC".to_string())));
 
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("0".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("0".to_string())));
 
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("123".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("123".to_string())));
 
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("a1".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("a1".to_string())));
 
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("a_3".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("a_3".to_string())));
 
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("3.1".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("3.1".to_string())));
 
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("1.".to_owned())));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("a".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("1.".to_string())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("a".to_string())));
 
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("a".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("a".to_string())));
         assert_eq!(lexer.tokenize(), Some(TokenKind::BitwiseAnd));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("1".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("1".to_string())));
 
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("abc".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("abc".to_string())));
         assert_eq!(lexer.tokenize(), Some(TokenKind::Period));
-        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("_d3".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("_d3".to_string())));
     }
 
     #[test]
@@ -299,4 +299,15 @@ mod tests {
         assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("xa".to_owned())));
     }
 
+    #[test]
+    fn test_tokenize_double_quote() {
+        let code = "\"\" \"h\" \"1  anvcd*'_d\" \"\\\"  \"";
+        let mut lexer = Lexer::new(code);
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::String("".to_string())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::String("h".to_string())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::String("1  anvcd*'_d".to_string())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::String("\\".to_string())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::DoubleQuote));
+    }
 }
