@@ -15,6 +15,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    /// get next character without consuming
     pub fn peek(&self) -> Option<u8> {
 		if self.position >= self.input.len() {
 			return None
@@ -23,6 +24,7 @@ impl<'a> Lexer<'a> {
 		}
     }
 
+    /// get and consume next character
 	pub fn read(&mut self) -> Option<u8> {
 		if self.position >= self.input.len() {
             self.last_char = 0;
@@ -214,15 +216,41 @@ impl<'a> Lexer<'a> {
             while let Some(c) = self.read_letter() {
                 chars.push(c);
             }
-            return Some(chars);
-        } else if Self::is_decimal_digit(begin_char) {
+            return Some(chars)
+        }
+        
+        if begin_char == b'0' {
+            if let Some(c) = self.peek() {
+                match c {
+                    b'b' => {
+                        self.read();
+                        chars.push(b'b');
+                        while let Some(b) = self.read_bits() {
+                            chars.push(b);
+                        }
+                        return Some(chars)
+                    },
+                    b'x' => {
+                        self.read();
+                        chars.push(b'x');
+                        while let Some(n) = self.read_nibles() {
+                            chars.push(n);
+                        }
+                        return Some(chars)
+                    },
+                    _ => (),
+                }
+            }
+        }
+
+        if Self::is_decimal_digit(begin_char) {
             while let Some(n) = self.read_numeric_or_dot() {
                 chars.push(n);
             }
-            return Some(chars);
-        } else {
-            None
+            return Some(chars)
         }
+
+        None
     }
 
     fn skip_till_eol(&mut self) {
@@ -237,7 +265,7 @@ impl<'a> Lexer<'a> {
         if let Some(c) = self.peek() {
             if Self::is_decimal_digit(c) || c == b'.' {
                 self.read();
-                return Some(c);
+                return Some(c)
             }
         }
         None
@@ -247,7 +275,27 @@ impl<'a> Lexer<'a> {
         if let Some(c) = self.peek() {
             if Self::is_letter(c) || Self::is_decimal_digit(c) {
                 self.read();
-                return Some(c);
+                return Some(c)
+            }
+        }
+        None
+    }
+
+    fn read_bits(&mut self) -> Option<u8> {
+        if let Some(c) = self.peek() {
+            if c == b'1' || c == b'0' {
+                self.read();
+                return Some(c)
+            }
+        }
+        None
+    }
+
+    fn read_nibles(&mut self) -> Option<u8> {
+        if let Some(c) = self.peek() {
+            if Self::is_nible(c) {
+                self.read();
+                return Some(c)
             }
         }
         None
@@ -261,7 +309,7 @@ impl<'a> Lexer<'a> {
         c >= b'0' && c <= b'9'
     }
 
-    fn is_hex_nible(c: u8) -> bool {
+    fn is_nible(c: u8) -> bool {
         (c >= b'0' && c <= b'9') || (c >= b'a' && c <= b'f') || (c >= b'A' && c <= b'F')
     }
 

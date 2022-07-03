@@ -270,4 +270,33 @@ mod tests {
         assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("_d3".to_owned())));
     }
 
+    #[test]
+    fn test_tokenize_bits_hex() {
+        let code = "0xa 0b10 0bb 0xx 0xAd 0.b0b 00b1 00xa";
+        let mut lexer = Lexer::new(code);
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("0xa".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("0b10".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("0b".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("b".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("0x".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("x".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("0xAd".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("0.".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("b0b".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("00".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("b1".to_owned())));
+
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("00".to_owned())));
+        assert_eq!(lexer.tokenize(), Some(TokenKind::Identifier("xa".to_owned())));
+    }
+
 }
