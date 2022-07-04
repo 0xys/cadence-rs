@@ -74,7 +74,6 @@ pub enum TokenKind {
     Identifier(String),
 
     None,
-    LineComment,
 
     EOF, // \u{0}
 }

@@ -47,9 +47,10 @@ impl<'a> Lexer<'a> {
 
 	pub fn tokenize(&mut self) -> Token {
 		self.read_spaces();
+        self.read_comments();
 
 		let kind = match self.read() {
-			None => TokenKind::None,
+			None => TokenKind::EOF,
 			Some(c) => {
 				match c {
 					b'(' => TokenKind::ParenOpen,
@@ -67,7 +68,7 @@ impl<'a> Lexer<'a> {
 					b'+' => TokenKind::Plus,
 					b'-' => TokenKind::Minus,
 					b'*' => TokenKind::Asterisk,
-					b'/' => self.slash().unwrap_or(TokenKind::None),
+					b'/' => TokenKind::Slash,
 					b'\\' => TokenKind::Backslash,
 					b'%' => TokenKind::Percent,
 					b'=' => self.equal().unwrap_or(TokenKind::None),
@@ -116,6 +117,20 @@ impl<'a> Lexer<'a> {
         count
 	}
 
+    fn read_comments(&mut self) {
+        if let Some(c) = self.peek() {
+            if c == b'/' {
+                if let Some(cc) = self.peekn(1) {
+                    if cc == b'/' {
+                        self.read();
+                        self.read();
+                        self.read_till_eol();
+                    }
+                }
+            }
+        }
+    }
+
     fn peek_spaces(&mut self, offset: usize) -> usize {
         let mut count = 0;
         while let Some(c) = self.peekn(offset + count) {
@@ -126,20 +141,6 @@ impl<'a> Lexer<'a> {
             }
         }
         count
-    }
-
-    fn slash(&mut self) -> Option<TokenKind> {
-        if let Some(c) = self.peek() {
-            match c {
-                b'/' => {
-                    self.read_till_eol();
-                    Some(TokenKind::LineComment)
-                },
-                _ => Some(TokenKind::Slash),
-            }
-        }else{
-            Some(TokenKind::Slash)
-        }
     }
 
     fn excalmation(&mut self) -> Option<TokenKind> {

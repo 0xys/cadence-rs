@@ -110,20 +110,20 @@ mod tests {
         assert_eq!(lexer.tokenize().kind, TokenKind::Colon);
 
         assert_eq!(lexer.peek(), None);
-        assert_eq!(lexer.tokenize().kind, TokenKind::None);
+        assert_eq!(lexer.tokenize().kind, TokenKind::EOF);
     }
 
     #[test]
     fn test_skip_line_comments() {
-        let code = "+//abv/\n/{///)\n/";
+        let code = "+//abv/\n/{///)\n/@//";
         let mut lexer = Lexer::new(code);
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Plus);
-        assert_eq!(lexer.tokenize().kind, TokenKind::LineComment);
         assert_eq!(lexer.tokenize().kind, TokenKind::Slash);
         assert_eq!(lexer.tokenize().kind, TokenKind::BraceOpen);
-        assert_eq!(lexer.tokenize().kind, TokenKind::LineComment);
         assert_eq!(lexer.tokenize().kind, TokenKind::Slash);
+        assert_eq!(lexer.tokenize().kind, TokenKind::At);
+        assert_eq!(lexer.tokenize().kind, TokenKind::EOF);
     }
 
     #[test]
