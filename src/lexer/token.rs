@@ -73,10 +73,59 @@ pub enum TokenKind {
     String(String),
     Identifier(String),
 
-    As,
-
     None,
     LineComment,
 
     EOF, // \u{0}
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum ReservedWord {
+    Let,
+    Var,
+
+    If,
+    Else,
+    Switch,
+    Case,
+    Break,
+    Default,
+    While,
+    For,
+    In,
+    Continue,
+
+    Pub,
+    Priv,
+    Access,
+    All,
+    Contractt,
+    Account,
+
+    Struct,
+    Resource,
+    Interface,
+    Enum,
+    Init,
+    Get,
+    Set,
+    Pre,
+    Post,
+    SSelf,
+    Create,
+    Destroy,
+
+    Import,
+    From,
+
+    Fun,
+    Return,
+    Event,
+    Emit,
+
+    Transaction,
+    Prepare,
+    Execute,
+
+    As,
 }
