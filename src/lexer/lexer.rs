@@ -1,8 +1,11 @@
-use super::token::TokenKind;
+use super::token::{
+    Token, TokenKind
+};
 
 pub struct Lexer<'a> {
     input: &'a[u8],
     position: usize,
+    commited_position: usize,
     last_char: u8,
 }
 
@@ -11,6 +14,7 @@ impl<'a> Lexer<'a> {
         Self {
             input: input.as_bytes(),
             position: 0,
+            commited_position: 0,
             last_char: 0,
         }
     }
@@ -41,52 +45,63 @@ impl<'a> Lexer<'a> {
 		}
 	}
 
-	pub fn tokenize(&mut self) -> Option<TokenKind> {
+	pub fn tokenize(&mut self) -> Token {
 		self.read_spaces();
 
-		match self.read() {
-			None => None,
+		let kind = match self.read() {
+			None => TokenKind::None,
 			Some(c) => {
 				match c {
-					b'(' => Some(TokenKind::ParenOpen),
-					b')' => Some(TokenKind::ParenClose),
-					b'[' => Some(TokenKind::BracketOpen),
-					b']' => Some(TokenKind::BracketClose),
-					b'{' => Some(TokenKind::BraceOpen),
-					b'}' => Some(TokenKind::BraceClose),
-					b'<' => self.angle_open(),
-					b'>' => self.angle_close(),
+					b'(' => TokenKind::ParenOpen,
+					b')' => TokenKind::ParenClose,
+					b'[' => TokenKind::BracketOpen,
+					b']' => TokenKind::BracketClose,
+					b'{' => TokenKind::BraceOpen,
+					b'}' => TokenKind::BraceClose,
+					b'<' => self.angle_open().unwrap_or(TokenKind::None),
+					b'>' => self.angle_close().unwrap_or(TokenKind::None),
 
-					b',' => Some(TokenKind::Comma),
-					b'.' => self.period(),
+					b',' => TokenKind::Comma,
+					b'.' => self.period().unwrap_or(TokenKind::None),
 
-					b'+' => Some(TokenKind::Plus),
-					b'-' => Some(TokenKind::Minus),
-					b'*' => Some(TokenKind::Asterisk),
-					b'/' => self.slash(),
-					b'\\' => Some(TokenKind::Backslash),
-					b'%' => Some(TokenKind::Percent),
-					b'=' => self.equal(),
+					b'+' => TokenKind::Plus,
+					b'-' => TokenKind::Minus,
+					b'*' => TokenKind::Asterisk,
+					b'/' => self.slash().unwrap_or(TokenKind::None),
+					b'\\' => TokenKind::Backslash,
+					b'%' => TokenKind::Percent,
+					b'=' => self.equal().unwrap_or(TokenKind::None),
 
-					b'?' => Some(TokenKind::Question),
-					b'!' => self.excalmation(),
+					b'?' => TokenKind::Question,
+					b'!' => self.excalmation().unwrap_or(TokenKind::None),
 
-					b'@' => Some(TokenKind::At),
+					b'@' => TokenKind::At,
 
-					b'&' => self.and(),
-					b'|' => self.or(),
-					b'^' => Some(TokenKind::Xor),
+					b'&' => self.and().unwrap_or(TokenKind::None),
+					b'|' => self.or().unwrap_or(TokenKind::None),
+					b'^' => TokenKind::Xor,
 
-					b'"' => self.double_quote(),
-					b'\'' => Some(TokenKind::SingleQuote),
+					b'"' => self.double_quote().unwrap_or(TokenKind::None),
+					b'\'' => TokenKind::SingleQuote,
 
-					b';' => Some(TokenKind::SemiColon),
-					b':' => Some(TokenKind::Colon),
-					_ => self.alphanumeric(),
+					b';' => TokenKind::SemiColon,
+					b':' => TokenKind::Colon,
+					_ => self.alphanumeric().unwrap_or(TokenKind::None),
 				}
 			}
-		}
+		};
+
+        let at = self.commited_position;
+        let size = self.position - self.commited_position;
+
+        self.commit();
+
+        Token::new(kind, at, size)
 	}
+
+    fn commit(&mut self) {
+        self.commited_position = self.position;
+    }
 
 	fn read_spaces(&mut self) -> usize {
         let mut count = 0;
@@ -117,8 +132,8 @@ impl<'a> Lexer<'a> {
         if let Some(c) = self.peek() {
             match c {
                 b'/' => {
-                    self.skip_till_eol();
-                    self.tokenize()
+                    self.read_till_eol();
+                    Some(TokenKind::LineComment)
                 },
                 _ => Some(TokenKind::Slash),
             }
@@ -310,7 +325,7 @@ impl<'a> Lexer<'a> {
         None
     }
 
-    fn skip_till_eol(&mut self) {
+    fn read_till_eol(&mut self) {
         while let Some(c) = self.read() {
             if c == b'\n' {
                 break;
