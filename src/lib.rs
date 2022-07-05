@@ -127,6 +127,20 @@ mod tests {
     }
 
     #[test]
+    fn test_skip_block_comments() {
+        let code = "+/* comment */ + /*\ncomment\n*\nhello*//{///)\n/@/*hello";
+        let mut lexer = Lexer::new(code);
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Plus);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Plus);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Slash);
+        assert_eq!(lexer.tokenize().kind, TokenKind::BraceOpen);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Slash);
+        assert_eq!(lexer.tokenize().kind, TokenKind::At);
+        assert_eq!(lexer.tokenize().kind, TokenKind::EOF);
+    }
+
+    #[test]
     fn test_tokenize_neq() {
         let code = "!+!= ! =&";
         let mut lexer = Lexer::new(code);

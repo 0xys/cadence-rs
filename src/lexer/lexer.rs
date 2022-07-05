@@ -48,6 +48,7 @@ impl<'a> Lexer<'a> {
 	pub fn tokenize(&mut self) -> Token {
 		self.read_spaces();
         self.read_comments();
+		self.read_spaces(); // read spaces after comments
 
 		let kind = match self.read() {
 			None => TokenKind::EOF,
@@ -125,6 +126,10 @@ impl<'a> Lexer<'a> {
                         self.read();
                         self.read();
                         self.read_till_eol();
+                    } else if cc == b'*' {
+                        self.read();
+                        self.read();
+                        self.read_till_blockcomment_close();
                     }
                 }
             }
@@ -333,6 +338,18 @@ impl<'a> Lexer<'a> {
             }
         }
     }
+    fn read_till_blockcomment_close(&mut self) {
+        while let Some(c) = self.read() {
+            if c == b'*' {
+                if let Some(cc) = self.read() {
+                    if cc == b'/' {
+                        break;
+                    }   
+                }
+            }
+        }
+    }
+
 
     fn read_numeric_or_dot(&mut self) -> Option<u8> {
         if let Some(c) = self.peek() {
