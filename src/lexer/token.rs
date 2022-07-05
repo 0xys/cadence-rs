@@ -72,6 +72,7 @@ pub enum TokenKind {
 
     String(String),
     Identifier(String),
+    Keyword(Keyword),
 
     None,
 
@@ -79,7 +80,7 @@ pub enum TokenKind {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum ReservedWord {
+pub enum Keyword {
     Let,
     Var,
 
@@ -98,7 +99,7 @@ pub enum ReservedWord {
     Priv,
     Access,
     All,
-    Contractt,
+    Contract,
     Account,
 
     Struct,
@@ -127,4 +128,62 @@ pub enum ReservedWord {
     Execute,
 
     As,
+}
+
+impl Keyword {
+    pub fn from(str: &str) -> Option<Self> {
+        let keyword = match str {
+            "let" => Self::Let,
+            "var" => Self::Var,
+
+            "if" => Self::If,
+            "else" => Self::Else,
+            "switch" => Self::Switch,
+            "case" => Self::Case,
+            "break" => Self::Break,
+            "default" => Self::Default,
+            "while" => Self::While,
+            "for" => Self::For,
+            "in" => Self::In,
+            "continue" => Self::Continue,
+
+            "pub" => Self::Pub,
+            "priv" => Self::Priv,
+            "access" => Self::Access,
+            "all" => Self::All,
+            "contract" => Self::Contract,
+            "account" => Self::Account,
+
+            "struct" => Self::Struct,
+            "resource" => Self::Resource,
+            "interface" => Self::Interface,
+            "enum" => Self::Enum,
+            "init" => Self::Init,
+            "get" => Self::Get,
+            "set" => Self::Set,
+            "pre" => Self::Pre,
+            "post" => Self::Post,
+            "self" => Self::SSelf,
+            "create" => Self::Create,
+            "destroy" => Self::Destroy,
+
+            "import" => Self::Import,
+            "from" => Self::From,
+
+            "fun" => Self::Fun,
+            "return" => Self::Return,
+            "event" => Self::Event,
+            "emit" => Self::Emit,
+
+            "transaction" => Self::Transaction,
+            "prepare" => Self::Prepare,
+            "execute" => Self::Execute,
+
+            "as" => Self::As,
+            _ => {
+                return None
+            }
+        };
+        Some(keyword)
+    }
 }

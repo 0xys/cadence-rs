@@ -1,5 +1,5 @@
 use super::token::{
-    Token, TokenKind
+    Token, TokenKind, Keyword
 };
 
 pub struct Lexer<'a> {
@@ -281,7 +281,12 @@ impl<'a> Lexer<'a> {
     fn alphanumeric(&mut self) -> Option<TokenKind> {
         if let Some(letters) = self.read_chars(self.last_char) {
             let identifier = String::from_utf8(letters).unwrap();
-            return Some(TokenKind::Identifier(identifier))
+            
+            if let Some(keyword) = Keyword::from(&identifier) {
+                return Some(TokenKind::Keyword(keyword))
+            } else {
+                return Some(TokenKind::Identifier(identifier))
+            }
         }
         None
     }

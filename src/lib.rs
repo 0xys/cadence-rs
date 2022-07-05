@@ -3,7 +3,9 @@ pub mod lexer;
 #[cfg(test)]
 mod tests {    
     use crate::lexer::lexer::Lexer;
-    use crate::lexer::token::TokenKind;
+    use crate::lexer::token::{
+        TokenKind, Keyword,
+    };
 
     #[test]
     fn it_works() {
@@ -223,13 +225,14 @@ mod tests {
 
     #[test]
     fn test_tokenize_identifier() {
-        let code = ". abc AbC 0 123 a1 a_3 3.1 1.a a&1 abc. _d3 123. 2";
+        let code = ". abc AbC? 0 123 a1 a_3 3.1 1.a a&1 abc. _d3 123. 2";
         let mut lexer = Lexer::new(code);
 
         assert_eq!(lexer.tokenize().kind, TokenKind::None); // period with whitespaces are None
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("abc".to_string()));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("AbC".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Question);
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("0".to_string()));
 
@@ -256,6 +259,65 @@ mod tests {
         assert_eq!(lexer.tokenize().kind, TokenKind::None); // period with whitespaces are None
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("2".to_string()));
     }
+
+    #[test]
+    fn test_tokenize_keyword() {
+        let code = "letu let var if else& switch case break; default while for in continue pub priv access all contract account struct resource interface enum init get set pre post self create destroy import from fun return event emit transaction prepare execute as";
+        let mut lexer = Lexer::new(code);
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("letu".to_string()));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Let));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Var));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::If));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Else));
+        assert_eq!(lexer.tokenize().kind, TokenKind::BitwiseAnd);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Switch));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Case));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Break));
+        assert_eq!(lexer.tokenize().kind, TokenKind::SemiColon);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Default));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::While));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::For));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::In));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Continue));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Pub));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Priv));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Access));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::All));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Contract));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Account));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Struct));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Resource));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Interface));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Enum));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Init));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Get));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Set));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Pre));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Post));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::SSelf));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Create));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Destroy));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Import));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::From));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Fun));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Return));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Event));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Emit));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Transaction));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Prepare));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Execute));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::As));
+    }
+
 
     #[test]
     fn test_tokenize_bits_hex() {
