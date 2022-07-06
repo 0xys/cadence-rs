@@ -74,7 +74,7 @@ impl<'a> Lexer<'a> {
 					b'%' => TokenKind::Percent,
 					b'=' => self.equal().unwrap_or(TokenKind::None),
 
-					b'?' => TokenKind::Question,
+					b'?' => self.question().unwrap_or(TokenKind::None),
 					b'!' => self.excalmation().unwrap_or(TokenKind::None),
 
 					b'@' => TokenKind::At,
@@ -146,6 +146,20 @@ impl<'a> Lexer<'a> {
             }
         }
         count
+    }
+
+    fn question(&mut self) -> Option<TokenKind> {
+        if let Some(c) = self.peek() {
+            match c {
+                b'.' => {
+                    self.read();
+                    Some(TokenKind::QuestionDot)
+                },
+                _ => Some(TokenKind::Question),
+            }
+        } else {
+            Some(TokenKind::Question)
+        }
     }
 
     fn excalmation(&mut self) -> Option<TokenKind> {
