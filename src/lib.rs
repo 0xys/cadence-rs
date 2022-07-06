@@ -366,7 +366,7 @@ mod tests {
 
     #[test]
     fn test_tokenize_resource_op() {
-        let code = "a <->b a<- b a <-! b a<<b";
+        let code = "a <->b a<- b a <-! b a<<  \n  b";
         let mut lexer = Lexer::new(code);
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
@@ -388,7 +388,7 @@ mod tests {
 
     #[test]
     fn test_tokenize_question() {
-        let code = "a?.b.c a.b a?. b a ?. b a ?.b";
+        let code = "a?.b\n.c a.b a?. b a ?. b a ?.b";
         let mut lexer = Lexer::new(code);
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));

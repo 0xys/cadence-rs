@@ -108,7 +108,7 @@ impl<'a> Lexer<'a> {
 	fn read_spaces(&mut self) -> usize {
         let mut count = 0;
         while let Some(c) = self.peek() {
-            if c == b' ' {
+            if c == b' ' || c == b'\n' {
                 self.read();
                 count += 1;
             }else{
