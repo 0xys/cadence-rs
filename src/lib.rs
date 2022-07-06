@@ -363,4 +363,26 @@ mod tests {
         assert_eq!(lexer.tokenize().kind, TokenKind::String("\"hello\nworld\"".to_string()));
         assert_eq!(lexer.tokenize().kind, TokenKind::DoubleQuote);
     }
+
+    #[test]
+    fn test_tokenize_resource_op() {
+        let code = "a <->b a<- b a <-! b a<<b";
+        let mut lexer = Lexer::new(code);
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Swap);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b".to_string()));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Move);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b".to_string()));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::MoveForce);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b".to_string()));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::BitwiseShiftLeft);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b".to_string()));
+    }
 }
