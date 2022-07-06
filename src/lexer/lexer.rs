@@ -173,6 +173,23 @@ impl<'a> Lexer<'a> {
                     self.read();
                     Some(TokenKind::BitwiseShiftLeft)
                 },
+                b'-' => {
+                    self.read();
+                    if let Some(cc) = self.peek() {
+                        return match cc {
+                            b'!' => {
+                                self.read();
+                                Some(TokenKind::MoveForce)
+                            },
+                            b'>' => {
+                                self.read();
+                                Some(TokenKind::Swap)
+                            },
+                            _ => Some(TokenKind::Move)
+                        }
+                    }
+                    Some(TokenKind::Move)
+                }
                 _ => Some(TokenKind::AngleOpen)
             }
         }else{

@@ -41,8 +41,9 @@ pub enum TokenKind {
     Backslash, // \
     Percent, // %
 
-    Question, // ?
-    Exclamation, // !
+    Question,       // ?
+    QuestionDot,    // ?.
+    Exclamation,    // !
 
     At, // @
 
@@ -64,6 +65,10 @@ pub enum TokenKind {
 
     Assign,
     EqualTo,
+
+    Swap,       // <->
+    Move,       // <-
+    MoveForce,  // <-!
 
     BitwiseAnd,
     BitwiseOr,
@@ -128,6 +133,8 @@ pub enum Keyword {
     Execute,
 
     As,
+    AsEx,   // as!
+    AsQu    // as?
 }
 
 impl Keyword {
