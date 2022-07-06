@@ -315,7 +315,7 @@ impl<'a> Lexer<'a> {
             
             if let Some(keyword) = Keyword::from(&identifier) {
                 if keyword == Keyword::As {
-                    if let Some(as_variant) = self.tokenize_as() {
+                    if let Some(as_variant) = self._as() {
                         return Some(as_variant)
                     }
                 }
@@ -327,7 +327,7 @@ impl<'a> Lexer<'a> {
         None
     }
 
-    fn tokenize_as(&mut self) -> Option<TokenKind> {
+    fn _as(&mut self) -> Option<TokenKind> {
         if let Some(c) = self.peek() {
             return match c {
                 b'!' => {
