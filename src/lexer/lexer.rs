@@ -314,9 +314,31 @@ impl<'a> Lexer<'a> {
             let identifier = String::from_utf8(letters).unwrap();
             
             if let Some(keyword) = Keyword::from(&identifier) {
+                if keyword == Keyword::As {
+                    if let Some(as_variant) = self.tokenize_as() {
+                        return Some(as_variant)
+                    }
+                }
                 return Some(TokenKind::Keyword(keyword))
             } else {
                 return Some(TokenKind::Identifier(identifier))
+            }
+        }
+        None
+    }
+
+    fn tokenize_as(&mut self) -> Option<TokenKind> {
+        if let Some(c) = self.peek() {
+            return match c {
+                b'!' => {
+                    self.read();
+                    Some(TokenKind::Keyword(Keyword::AsEx))
+                },
+                b'?' => {
+                    self.read();
+                    Some(TokenKind::Keyword(Keyword::AsQu))
+                },
+                _ => None
             }
         }
         None

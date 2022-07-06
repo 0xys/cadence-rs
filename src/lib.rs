@@ -318,6 +318,37 @@ mod tests {
         assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::As));
     }
 
+    #[test]
+    fn test_tokenize_as_variant() {
+        let code = "a as a a as! a a as? bb asa a s as ! a a as? \n b";
+        let mut lexer = Lexer::new(code);
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::As));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::AsEx));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::AsQu));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("bb".to_string()));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("asa".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("s".to_string()));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::As));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Exclamation);
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::AsQu));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b".to_string()));
+    }
 
     #[test]
     fn test_tokenize_bits_hex() {
