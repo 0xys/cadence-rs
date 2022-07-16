@@ -90,6 +90,9 @@ pub enum Keyword {
     Let,
     Var,
 
+    True,
+    False,
+
     If,
     Else,
     Switch,
@@ -143,6 +146,9 @@ impl Keyword {
         let keyword = match str {
             "let" => Self::Let,
             "var" => Self::Var,
+
+            "true" => Self::True,
+            "false" => Self::False,
 
             "if" => Self::If,
             "else" => Self::Else,
