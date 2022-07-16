@@ -93,6 +93,8 @@ pub enum Keyword {
     True,
     False,
 
+    Nil,
+
     If,
     Else,
     Switch,
@@ -149,6 +151,8 @@ impl Keyword {
 
             "true" => Self::True,
             "false" => Self::False,
+
+            "nil" => Self::Nil,
 
             "if" => Self::If,
             "else" => Self::Else,

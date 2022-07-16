@@ -262,7 +262,7 @@ mod tests {
 
     #[test]
     fn test_tokenize_keyword() {
-        let code = "letu let var true false if else& switch case break; default while for in continue pub priv access all contract account struct resource interface enum init get set pre post self create destroy import from fun return event emit transaction prepare execute as";
+        let code = "letu let var true false nil if else& switch case break; default while for in continue pub priv access all contract account struct resource interface enum init get set pre post self create destroy import from fun return event emit transaction prepare execute as";
         let mut lexer = Lexer::new(code);
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("letu".to_string()));
@@ -272,6 +272,8 @@ mod tests {
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::True));
         assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::False));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Nil));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::If));
         assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Else));
