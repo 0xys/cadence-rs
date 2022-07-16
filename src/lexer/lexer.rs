@@ -155,6 +155,10 @@ impl<'a> Lexer<'a> {
                     self.read();
                     Some(TokenKind::QuestionDot)
                 },
+                b'?' => {
+                    self.read();
+                    Some(TokenKind::QuestionDouble)
+                }
                 _ => Some(TokenKind::Question),
             }
         } else {

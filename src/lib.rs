@@ -419,7 +419,7 @@ mod tests {
 
     #[test]
     fn test_tokenize_question() {
-        let code = "a?.b\n.c a.b a?. b a ?. b a ?.b";
+        let code = "a?.b\n.c a.b a?. b a ?. b a ?.b a??b a?? b a ??b?.c";
         let mut lexer = Lexer::new(code);
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
@@ -443,6 +443,20 @@ mod tests {
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
         assert_eq!(lexer.tokenize().kind, TokenKind::QuestionDot);
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b".to_string()));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::QuestionDouble);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b".to_string()));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::QuestionDouble);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b".to_string()));
+
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::QuestionDouble);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::QuestionDot);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("c".to_string()));
         
         assert_eq!(lexer.tokenize().kind, TokenKind::EOF);
     }

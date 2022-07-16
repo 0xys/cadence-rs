@@ -43,6 +43,7 @@ pub enum TokenKind {
 
     Question,       // ?
     QuestionDot,    // ?.
+    QuestionDouble, // ??
     Exclamation,    // !
 
     At, // @
