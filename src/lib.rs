@@ -58,7 +58,7 @@ mod tests {
         assert_eq!(lexer.tokenize().kind, TokenKind::Comma);
 
         assert_eq!(lexer.peek(), Some(b'.'));
-        assert_eq!(lexer.tokenize().kind, TokenKind::Period);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Dot);
 
         assert_eq!(lexer.peek(), Some(b'+'));
         assert_eq!(lexer.tokenize().kind, TokenKind::Plus);
@@ -425,11 +425,11 @@ mod tests {
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
         assert_eq!(lexer.tokenize().kind, TokenKind::QuestionDot);
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b".to_string()));
-        assert_eq!(lexer.tokenize().kind, TokenKind::Period);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Dot);
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("c".to_string()));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
-        assert_eq!(lexer.tokenize().kind, TokenKind::Period);
+        assert_eq!(lexer.tokenize().kind, TokenKind::Dot);
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b".to_string()));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));

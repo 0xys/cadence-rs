@@ -273,7 +273,7 @@ impl<'a> Lexer<'a> {
 
     fn period(&mut self) -> Option<TokenKind> {
         if self.read_spaces() == 0 {
-            Some(TokenKind::Period)
+            Some(TokenKind::Dot)
         } else {
             None
         }

@@ -32,7 +32,7 @@ pub enum TokenKind {
     AngleClose, // >
     
     Comma, // ,
-    Period, // .
+    Dot, // .
 
     Plus, // +
     Minus, // -
