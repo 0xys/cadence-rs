@@ -205,3 +205,150 @@ impl Keyword {
         Some(keyword)
     }
 }
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum Type {
+    Any,
+    AnyStruct,
+    AnyResource,
+
+    Never,
+
+    Address,
+    Character,
+    String,
+    Bool,
+    Type,
+
+    Number,
+    FixedPoint,
+    SignedNumber,
+    UFix64,
+    SignedFixedPoint,
+    Fix64,
+
+    Integer,
+    UInt,
+    Uint8,
+    UInt16,
+    UInt32,
+    UInt64,
+    UInt128,
+    UInt256,
+    Word8,
+    Word16,
+    Word32,
+    Word64,
+    
+    SignedInteger,
+    Int,
+    Int8,
+    Int16,
+    Int32,
+    Int64,
+    Int128,
+    Int256,
+
+    Block,
+    Capability,
+    Reference,
+
+    Path,
+    StoragePath,
+    CapabilityPath,
+    PublicPath,
+    PrivatePath,
+
+    Function,
+    AuthAccount,
+    PublicAccount,
+    Enum,
+
+    ArrayOfStructs,
+    DictionaryOfStructs,
+    OptionalOfStructs,
+    RestrictionOfStructs,
+
+    ArrayOfResources,
+    DictionaryOfResources,
+    OptionalOfResources,
+    RestrictionOfResources,
+}
+
+impl Type {
+    pub fn from(str: &str) -> Option<Self> {
+        let _type = match str {
+            "Any" => Self::Any,
+            "AnyStruct" => Self::AnyStruct,
+            "AnyResource" => Self::AnyResource,
+
+            "Never" => Self::Never,
+
+            "Address" => Self::Address,
+            "Character" => Self::Character,
+            "String" => Self::String,
+            "Bool" => Self::Bool,
+            "Type" => Self::Type,
+
+            "Number" => Self::Number,
+            "FixedPoint" => Self::FixedPoint,
+            "SignedNumber" => Self::SignedNumber,
+            "UFix64" => Self::UFix64,
+            "SignedFixedPoint" => Self::SignedFixedPoint,
+            "Fix64" => Self::Fix64,
+
+            "Integer" => Self::Integer,
+            "UInt" => Self::UInt,
+            "Uint8" => Self::Uint8,
+            "UInt16" => Self::UInt16,
+            "UInt32" => Self::UInt32,
+            "UInt64" => Self::UInt64,
+            "UInt128" => Self::UInt128,
+            "UInt256" => Self::UInt256,
+            "Word8" => Self::Word8,
+            "Word16" => Self::Word16,
+            "Word32" => Self::Word32,
+            "Word64" => Self::Word64,
+
+            "SignedInteger" => Self::SignedInteger,
+            "Int" => Self::Int,
+            "Int8" => Self::Int8,
+            "Int16" => Self::Int16,
+            "Int32" => Self::Int32,
+            "Int64" => Self::Int64,
+            "Int128" => Self::Int128,
+            "Int256" => Self::Int256,
+
+            "Block" => Self::Block,
+            "Capability" => Self::Capability,
+            "Reference" => Self::Reference,
+
+            "Path" => Self::Path,
+            "StoragePath" => Self::StoragePath,
+            "CapabilityPath" => Self::CapabilityPath,
+            "PublicPath" => Self::PublicPath,
+            "PrivatePath" => Self::PrivatePath,
+
+            "Function" => Self::Function,
+            "AuthAccount" => Self::AuthAccount,
+            "PublicAccount" => Self::PublicAccount,
+            "Enum" => Self::Enum,
+
+            "ArrayOfStructs" => Self::ArrayOfStructs,
+            "DictionaryOfStructs" => Self::DictionaryOfStructs,
+            "OptionalOfStructs" => Self::OptionalOfStructs,
+            "RestrictionOfStructs" => Self::RestrictionOfStructs,
+
+            "ArrayOfResources" => Self::ArrayOfResources,
+            "DictionaryOfResources" => Self::DictionaryOfResources,
+            "OptionalOfResources" => Self::OptionalOfResources,
+            "RestrictionOfResources" => Self::RestrictionOfResources,
+
+            _ => {
+                return None
+            }
+        };
+
+        Some(_type)
+    }
+}
