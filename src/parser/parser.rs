@@ -60,7 +60,9 @@ impl BacktrackingParser {
             Err(Error::ParseError(err))
         }
     }
+}
 
+impl BacktrackingParser {
     pub fn expression(&mut self) -> Result<Node, Error> {
         self.logical_term()
     }
@@ -286,6 +288,10 @@ impl BacktrackingParser {
 
         Ok(lhs)
     }
+
+}
+
+impl BacktrackingParser {
     fn logical_op(&mut self) -> Option<Token> {
         if let Some(token) = self.peek() {
             return match token.kind {
