@@ -62,7 +62,7 @@ impl BacktrackingParser {
     }
 
     pub fn expression(&mut self) -> Result<Node, Error> {
-        self.and_term()
+        self.xor_term()
     }
 
     pub fn logical_term(&mut self) -> Result<Node, Error> {
@@ -75,6 +75,26 @@ impl BacktrackingParser {
         };
         let rhs = self.factor()?;
         Ok(Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), op)))
+    }
+
+    fn xor_term(&mut self) -> Result<Node, Error> {
+        let mut lhs = self.and_term()?;
+
+        loop {
+            if let Some(op) = self.xor_op() {
+                self.read()?;
+                let xor_op = match op.kind {
+                    TokenKind::Xor => BinaryOperation::Xor,
+                    _ => return Err(Error::ParseError(format!("expected ^ but got {:?}", op.kind)))
+                };
+                let rhs = self.and_term()?;
+                lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), xor_op))
+            } else {
+                break;
+            }
+        }
+
+        Ok(lhs)
     }
 
     fn and_term(&mut self) -> Result<Node, Error> {
@@ -161,6 +181,15 @@ impl BacktrackingParser {
         Ok(lhs)
     }
 
+    fn xor_op(&mut self) -> Option<Token> {
+        if let Some(token) = self.peek() {
+            return match token.kind {
+                TokenKind::Xor => Some(token),
+                _ => None,
+            }
+        }
+        None
+    }
     fn and_op(&mut self) -> Option<Token> {
         if let Some(token) = self.peek() {
             return match token.kind {
