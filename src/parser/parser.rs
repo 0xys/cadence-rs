@@ -331,6 +331,28 @@ impl BacktrackingParser {
         Ok(Node::new(NodeKind::UnaryOperation(Box::new(operand), unary_ops)))
     }
 
+    fn factor(&mut self) -> Result<Node, Error> {
+        let token = self.read()?;
+        if token.kind == TokenKind::ParenOpen {
+            let node = self.expression()?;
+            self.expect_and_read(TokenKind::ParenClose)?;
+            return Ok(node)
+        } else {
+            self.back()?;
+            let node = self.terminal()?;
+            return Ok(node)
+        }
+    }
+
+    fn terminal(&mut self) -> Result<Node, Error> {
+        let token = self.read()?;
+        match token.kind {
+            TokenKind::String(str) => Ok(Node::new(NodeKind::TerminalString(str))),
+            TokenKind::Identifier(id) => Ok(Node::new(NodeKind::TerminalIdentifier(id))),
+            TokenKind::Number(num) => Ok(Node::new(NodeKind::TerminalNumber(num))),
+            _ => Err(Error::ParseError("not terminal".to_owned()))
+        }
+    }
 }
 
 impl BacktrackingParser {
@@ -442,28 +464,4 @@ impl BacktrackingParser {
         }
         None
     }
-
-    fn factor(&mut self) -> Result<Node, Error> {
-        let token = self.read()?;
-        if token.kind == TokenKind::ParenOpen {
-            let node = self.expression()?;
-            self.expect_and_read(TokenKind::ParenClose)?;
-            return Ok(node)
-        } else {
-            self.back()?;
-            let node = self.terminal()?;
-            return Ok(node)
-        }
-    }
-
-    fn terminal(&mut self) -> Result<Node, Error> {
-        let token = self.read()?;
-        match token.kind {
-            TokenKind::String(str) => Ok(Node::new(NodeKind::TerminalString(str))),
-            TokenKind::Identifier(id) => Ok(Node::new(NodeKind::TerminalIdentifier(id))),
-            TokenKind::Number(num) => Ok(Node::new(NodeKind::TerminalNumber(num))),
-            _ => Err(Error::ParseError("not terminal".to_owned()))
-        }
-    }
-
 }
