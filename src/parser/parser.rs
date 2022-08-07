@@ -62,7 +62,7 @@ impl BacktrackingParser {
     }
 
     pub fn expression(&mut self) -> Result<Node, Error> {
-        self.shift_term()
+        self.and_term()
     }
 
     pub fn logical_term(&mut self) -> Result<Node, Error> {
@@ -75,6 +75,26 @@ impl BacktrackingParser {
         };
         let rhs = self.factor()?;
         Ok(Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), op)))
+    }
+
+    fn and_term(&mut self) -> Result<Node, Error> {
+        let mut lhs = self.shift_term()?;
+
+        loop {
+            if let Some(op) = self.and_op() {
+                self.read()?;
+                let and_op = match op.kind {
+                    TokenKind::BitwiseAnd => BinaryOperation::And,
+                    _ => return Err(Error::ParseError(format!("expected & but got {:?}", op.kind)))
+                };
+                let rhs = self.shift_term()?;
+                lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), and_op))
+            } else {
+                break;
+            }
+        }
+
+        Ok(lhs)
     }
 
     fn shift_term(&mut self) -> Result<Node, Error> {
@@ -141,6 +161,15 @@ impl BacktrackingParser {
         Ok(lhs)
     }
 
+    fn and_op(&mut self) -> Option<Token> {
+        if let Some(token) = self.peek() {
+            return match token.kind {
+                TokenKind::BitwiseAnd => Some(token),
+                _ => None,
+            }
+        }
+        None
+    }
     fn shift_op(&mut self) -> Option<Token> {
         if let Some(token) = self.peek() {
             return match token.kind {
