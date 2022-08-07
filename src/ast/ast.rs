@@ -27,6 +27,8 @@ pub enum NodeKind {
     TerminalVariable(String),
     TerminalNumber(String),
     TerminalIdentifier(String),
+    ResourceTypeAnnotation(FullType),
+    TypeAnnotation(FullType),
 }
 
 impl Display for NodeKind {
@@ -53,6 +55,9 @@ impl Display for NodeKind {
             NodeKind::TerminalVariable(str) => write!(f, "var({})", str),
             NodeKind::TerminalNumber(str) => write!(f, "num({})", str),
             NodeKind::TerminalIdentifier(str) => write!(f, "id({})", str),
+
+            NodeKind::ResourceTypeAnnotation(t) => write!(f, "@{}", t),
+            NodeKind::TypeAnnotation(t) => write!(f, "{}", t),
         }
     }
 }
@@ -94,7 +99,6 @@ pub enum BinaryOperation {
     AndAnd,
     OrOr,
 }
-
 impl Display for BinaryOperation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let text = format!("{:?}", self);
@@ -108,11 +112,26 @@ pub enum UnaryOperation {
     Negate,
     Move,
 }
-
 impl Display for UnaryOperation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let text = format!("{:?}", self);
         write!(f, "{}", text)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum FullType {
+    AuthReference(String),
+    Reference(String),
+    Inner(String),
+}
+impl Display for FullType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::AuthReference(str) => write!(f, "Type{{auth &{}}}", str),
+            Self::Reference(str) => write!(f, "Type{{&{}}}", str),
+            Self::Inner(str) => write!(f, "Type{{{}}}", str),
+        }
     }
 }
 
@@ -126,12 +145,4 @@ pub struct Value {
 pub struct TypeAnnotation {
     pub is_resource: bool,
     pub full_type: FullType,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub enum FullType {
-    Int,
-    Int64,
-    UInt,
-    UInt64,
 }

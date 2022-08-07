@@ -134,6 +134,8 @@ pub enum Keyword {
     Import,
     From,
 
+    Auth,
+
     Fun,
     Return,
     Event,
@@ -188,6 +190,8 @@ impl Keyword {
 
             "import" => Self::Import,
             "from" => Self::From,
+
+            "auth" => Self::Auth,
 
             "fun" => Self::Fun,
             "return" => Self::Return,

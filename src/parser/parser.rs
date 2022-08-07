@@ -1,4 +1,4 @@
-use crate::{lexer::token::{Token, TokenKind, Keyword}, ast::ast::{Node, NodeKind, BinaryOperation, UnaryOperation}};
+use crate::{lexer::token::{Token, TokenKind, Keyword}, ast::ast::{Node, NodeKind, BinaryOperation, UnaryOperation, FullType}};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Error {
@@ -51,10 +51,10 @@ impl BacktrackingParser {
         Some(self.tokens[cursor].clone())
     }
 
-    fn expect_and_read(&mut self, kind: TokenKind) -> Result<(), Error> {
+    fn expect_and_read(&mut self, kind: TokenKind) -> Result<Token, Error> {
         let token = self.read()?;
         if token.kind == kind {
-            Ok(())
+            Ok(token.clone())
         } else {
             let err = format!("expected {:?} but got {:?}", kind, token.kind);
             Err(Error::ParseError(err))
@@ -301,7 +301,7 @@ impl BacktrackingParser {
                     TokenKind::AsQu => BinaryOperation::AsQuestion,
                     _ => return Err(Error::ParseError(format!("expected as as! as? but got {:?}", op.kind)))
                 };
-                let rhs = self.unary_term()?;
+                let rhs = self.type_annotation()?;
                 lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), as_op))
             } else {
                 break;
@@ -489,5 +489,49 @@ impl BacktrackingParser {
             }
         }
         None
+    }
+}
+
+impl BacktrackingParser {
+    pub(crate) fn type_annotation(&mut self) -> Result<Node, Error> {
+        let mut token = self.read()?;
+        let is_resource = if token.kind == TokenKind::At {
+                token = self.read()?;
+                true
+            } else {
+                false
+            };
+        
+        let is_auth = if token.kind == TokenKind::Keyword(Keyword::Auth) {
+                token = self.read()?;
+                true
+            } else {
+                false
+            };
+        
+        let is_ref = if token.kind == TokenKind::BitwiseAnd {
+                token = self.read()?;
+                true
+            } else {
+                false
+            };
+        
+        match token.kind {
+            TokenKind::Identifier(id) => {
+                match (is_resource, is_auth, is_ref) {
+                    (true, true, true) => Ok(Node::new(NodeKind::ResourceTypeAnnotation(FullType::AuthReference(id)))),
+                    (true, true, false) => Err(Error::ParseError("expect & after auth".to_string())),
+                    (true, false, true) => Ok(Node::new(NodeKind::ResourceTypeAnnotation(FullType::Reference(id)))),
+                    (true, false, false) => Ok(Node::new(NodeKind::ResourceTypeAnnotation(FullType::Inner(id)))),
+
+                    (false, true, true) => Ok(Node::new(NodeKind::TypeAnnotation(FullType::AuthReference(id)))),
+                    (false, true, false) => Err(Error::ParseError("expect & after auth".to_string())),
+                    (false, false, true) => Ok(Node::new(NodeKind::TypeAnnotation(FullType::Reference(id)))),
+                    (false, false, false) => Ok(Node::new(NodeKind::TypeAnnotation(FullType::Inner(id)))),
+                }
+            },
+            _ => Err(Error::ParseError(format!("expect type got {:?}", token.kind)))
+        }
+
     }
 }

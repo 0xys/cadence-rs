@@ -55,9 +55,21 @@ mod tests {
 
     #[test]
     fn test_as() {
-        let code  = "1 ?? 2 + 3 as 4 * 5";
+        let code  = "a as A";
         let ast = gen_ast(code);
-        assert_eq!(ast.to_string(), "NilCo{num(1), Add{num(2), Mul{As{num(3), num(4)}, num(5)}}}");
+        assert_eq!(ast.to_string(), "As{id(a), Type{A}}");
+
+        let code  = "a as &A";
+        let ast = gen_ast(code);
+        assert_eq!(ast.to_string(), "As{id(a), Type{&A}}");
+
+        let code  = "a as auth &A";
+        let ast = gen_ast(code);
+        assert_eq!(ast.to_string(), "As{id(a), Type{auth &A}}");
+
+        let code  = "1 ?? 2 + 3 as A";
+        let ast = gen_ast(code);
+        assert_eq!(ast.to_string(), "NilCo{num(1), Add{num(2), As{num(3), Type{A}}}}");
     }
 
     #[test]
@@ -88,6 +100,46 @@ mod tests {
         let code  = "-1*-2+destroy a";
         let ast = gen_ast(code);
         assert_eq!(ast.to_string(), "Add{Mul{[Minus]{num(1)}, [Minus]{num(2)}}, Destroy{id(a)}}");
+    }
+
+    #[test]
+    fn test_parse_type_annotation() {
+        fn gen_type(code: &str) -> Option<Node> {
+            let mut lexer = Lexer::new(code);
+            let tokens = lexer.tokenize_all();
+
+            let mut parser = BacktrackingParser::new(&tokens);
+            let ast = parser.type_annotation();
+            if ast.is_err() {
+                None
+            } else {
+                Some(ast.unwrap().clone())
+            }
+        }
+
+        let code = "a";
+        let ast = gen_type(code);
+        assert_eq!(ast.unwrap().to_string(), "Type{a}");
+
+        let code = "&a";
+        let ast = gen_type(code);
+        assert_eq!(ast.unwrap().to_string(), "Type{&a}");
+
+        let code = "auth &ab";
+        let ast = gen_type(code);
+        assert_eq!(ast.unwrap().to_string(), "Type{auth &ab}");
+
+        let code = "@a";
+        let ast = gen_type(code);
+        assert_eq!(ast.unwrap().to_string(), "@Type{a}");
+
+        let code = "@&a";
+        let ast = gen_type(code);
+        assert_eq!(ast.unwrap().to_string(), "@Type{&a}");
+
+        let code = "@auth&a";
+        let ast = gen_type(code);
+        assert_eq!(ast.unwrap().to_string(), "@Type{auth &a}");
     }
 
     fn gen_ast(code: &str) -> Node {
