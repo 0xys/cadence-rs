@@ -53,6 +53,13 @@ mod tests {
         assert_eq!(ast.to_string(), "NilCo{Mul{num(1), num(2)}, NilCo{Add{num(3), num(4)}, NilCo{Shil{num(5), num(6)}, NilCo{And{num(7), num(8)}, NilCo{Xor{num(9), num(10)}, Or{num(11), num(12)}}}}}}");
     }
 
+    #[test]
+    fn test_as() {
+        let code  = "1 ?? 2 + 3 as 4 * 5";
+        let ast = gen_ast(code);
+        assert_eq!(ast.to_string(), "NilCo{num(1), Add{num(2), Mul{As{num(3), num(4)}, num(5)}}}");
+    }
+
     fn gen_ast(code: &str) -> Node {
         let mut lexer = Lexer::new(code);
         let tokens = lexer.tokenize_all();

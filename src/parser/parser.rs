@@ -64,29 +64,7 @@ impl BacktrackingParser {
 
 impl BacktrackingParser {
     pub fn expression(&mut self) -> Result<Node, Error> {
-        self.as_term()
-    }
-
-    fn as_term(&mut self) -> Result<Node, Error> {
-        let mut lhs = self.logical_term()?;
-
-        loop {
-            if let Some(op) = self.as_op() {
-                self.read()?;
-                let as_op = match op.kind {
-                    TokenKind::As => BinaryOperation::As,
-                    TokenKind::AsEx => BinaryOperation::AsExclamation,
-                    TokenKind::AsQu => BinaryOperation::AsQuestion,
-                    _ => return Err(Error::ParseError(format!("expected as as! as? but got {:?}", op.kind)))
-                };
-                let rhs = self.logical_term()?;
-                lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), as_op))
-            } else {
-                break;
-            }
-        }
-
-        Ok(lhs)
+        self.logical_term()
     }
 
     fn logical_term(&mut self) -> Result<Node, Error> {
@@ -290,7 +268,7 @@ impl BacktrackingParser {
     }
 
     fn multiplicative_term(&mut self) -> Result<Node, Error> {
-        let mut lhs = self.factor()?;
+        let mut lhs = self.as_term()?;
         
         loop {
             if let Some(op) = self.multiplicative_op() {
@@ -301,8 +279,30 @@ impl BacktrackingParser {
                     TokenKind::Percent => BinaryOperation::Mod,
                     _ => return Err(Error::ParseError(format!("expected * / % but got {:?}", op.kind)))
                 };
-                let rhs = self.factor()?;
+                let rhs = self.as_term()?;
                 lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), mul_op))
+            } else {
+                break;
+            }
+        }
+
+        Ok(lhs)
+    }
+
+    fn as_term(&mut self) -> Result<Node, Error> {
+        let mut lhs = self.factor()?;
+
+        loop {
+            if let Some(op) = self.as_op() {
+                self.read()?;
+                let as_op = match op.kind {
+                    TokenKind::As => BinaryOperation::As,
+                    TokenKind::AsEx => BinaryOperation::AsExclamation,
+                    TokenKind::AsQu => BinaryOperation::AsQuestion,
+                    _ => return Err(Error::ParseError(format!("expected as as! as? but got {:?}", op.kind)))
+                };
+                let rhs = self.factor()?;
+                lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), as_op))
             } else {
                 break;
             }
