@@ -142,6 +142,30 @@ mod tests {
         assert_eq!(ast.unwrap().to_string(), "@Type{auth &a}");
     }
 
+    #[test]
+    fn test_parse_argument() {
+        fn gen_argument(code: &str) -> Option<Node> {
+            let mut lexer = Lexer::new(code);
+            let tokens = lexer.tokenize_all();
+
+            let mut parser = BacktrackingParser::new(&tokens);
+            let ast = parser.argument();
+            if ast.is_err() {
+                None
+            } else {
+                Some(ast.unwrap().clone())
+            }
+        }
+
+        let code = "1+2*3";
+        let ast = gen_argument(code);
+        assert_eq!(ast.unwrap().to_string(), "Arg{Add{num(1), Mul{num(2), num(3)}}}");
+
+        let code = "a: 1+2*3";
+        let ast = gen_argument(code);
+        assert_eq!(ast.unwrap().to_string(), "Arg{a: Add{num(1), Mul{num(2), num(3)}}}");
+    }
+
     fn gen_ast(code: &str) -> Node {
         let mut lexer = Lexer::new(code);
         let tokens = lexer.tokenize_all();

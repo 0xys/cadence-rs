@@ -1,4 +1,4 @@
-use crate::{lexer::token::{Token, TokenKind, Keyword}, ast::ast::{Node, NodeKind, BinaryOperation, UnaryOperation, FullType}};
+use crate::{lexer::token::{Token, TokenKind, Keyword}, ast::ast::{Node, NodeKind, BinaryOperation, UnaryOperation, FullType, ArgumentExp}};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Error {
@@ -533,5 +533,28 @@ impl BacktrackingParser {
             _ => Err(Error::ParseError(format!("expect type got {:?}", token.kind)))
         }
 
+    }
+
+    // pub(crate) fn invocation(&mut self) -> Result<Node, Error> {
+    //     let tok = self.read()?;
+    //     if tok.kind == TokenKind::AngleOpen {
+
+    //     }
+    // }
+
+    pub(crate) fn argument(&mut self) -> Result<Node, Error> {
+        let tok = self.read()?;
+        match tok.kind {
+            TokenKind::Identifier(id) => {
+                self.expect_and_read(TokenKind::Colon)?;
+                let exp = self.expression()?;
+                Ok(Node::new(NodeKind::Argument(ArgumentExp::new(Some(id), exp))))
+            },
+            _ => {
+                self.back()?;
+                let exp = self.expression()?;
+                Ok(Node::new(NodeKind::Argument(ArgumentExp::new(None, exp))))
+            }
+        }
     }
 }

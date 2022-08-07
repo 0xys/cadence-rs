@@ -29,6 +29,8 @@ pub enum NodeKind {
     TerminalIdentifier(String),
     ResourceTypeAnnotation(FullType),
     TypeAnnotation(FullType),
+    // Invocation(Option<Vec<Node>>, Vec<Node>),
+    Argument(ArgumentExp),
 }
 
 impl Display for NodeKind {
@@ -58,6 +60,15 @@ impl Display for NodeKind {
 
             NodeKind::ResourceTypeAnnotation(t) => write!(f, "@{}", t),
             NodeKind::TypeAnnotation(t) => write!(f, "{}", t),
+
+            NodeKind::Argument(arg) => {
+                let mut id = String::new();
+                if let Some(id_) = arg.id.clone() {
+                    id.push_str(&id_);
+                    id.push_str(": ")
+                }
+                write!(f, "Arg{{{}{}}}", id, arg.exp)
+            },
         }
     }
 }
@@ -132,6 +143,17 @@ impl Display for FullType {
             Self::Reference(str) => write!(f, "Type{{&{}}}", str),
             Self::Inner(str) => write!(f, "Type{{{}}}", str),
         }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ArgumentExp {
+    pub id: Option<String>,
+    pub exp: Box<Node>,
+}
+impl ArgumentExp {
+    pub fn new(id: Option<String>, exp: Node) -> Self {
+        Self { id: id, exp: Box::new(exp) }
     }
 }
 
