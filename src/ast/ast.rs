@@ -32,10 +32,10 @@ impl Display for NodeKind {
         match self {
             NodeKind::BinaryOperation(lhs, rhs, op)
                 => write!(f, "{}{{{}, {}}}", op, lhs.kind, rhs.kind),
-            NodeKind::TerminalString(str) => write!(f, "str{{{}}}", str),
-            NodeKind::TerminalVariable(str) => write!(f, "var{{{}}}", str),
-            NodeKind::TerminalNumber(str) => write!(f, "num{{{}}}", str),
-            NodeKind::TerminalIdentifier(str) => write!(f, "id{{{}}}", str),
+            NodeKind::TerminalString(str) => write!(f, "str({})", str),
+            NodeKind::TerminalVariable(str) => write!(f, "var({})", str),
+            NodeKind::TerminalNumber(str) => write!(f, "num({})", str),
+            NodeKind::TerminalIdentifier(str) => write!(f, "id({})", str),
         }
     }
 }
