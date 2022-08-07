@@ -330,15 +330,16 @@ impl<'a> Lexer<'a> {
             let identifier = String::from_utf8(letters).unwrap();
             
             if let Some(keyword) = Keyword::from(&identifier) {
-                if keyword == Keyword::As {
-                    if let Some(as_variant) = self._as() {
-                        return Some(as_variant)
-                    }
-                }
                 return Some(TokenKind::Keyword(keyword))
-            } else {
-                return Some(TokenKind::Identifier(identifier))
             }
+
+            if &identifier == "as" {
+                if let Some(as_variant) = self._as() {
+                    return Some(as_variant)
+                }
+            }
+
+            return Some(TokenKind::Identifier(identifier))
         }
         None
     }
@@ -348,16 +349,16 @@ impl<'a> Lexer<'a> {
             return match c {
                 b'!' => {
                     self.read();
-                    Some(TokenKind::Keyword(Keyword::AsEx))
+                    Some(TokenKind::AsEx)
                 },
                 b'?' => {
                     self.read();
-                    Some(TokenKind::Keyword(Keyword::AsQu))
+                    Some(TokenKind::AsQu)
                 },
-                _ => None
+                _ => Some(TokenKind::As)
             }
         }
-        None
+        Some(TokenKind::As)
     }
 
     fn read_chars(&mut self, begin_char: u8) -> Option<Vec<u8>> {

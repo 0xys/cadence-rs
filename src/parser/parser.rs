@@ -1,4 +1,4 @@
-use crate::{lexer::token::{Token, TokenKind, Keyword}, ast::ast::{Node, NodeKind, BinaryOperation}};
+use crate::{lexer::token::{Token, TokenKind}, ast::ast::{Node, NodeKind, BinaryOperation}};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Error {
@@ -387,9 +387,9 @@ impl BacktrackingParser {
         let lhs = self.factor()?;
         let op_tok = self.read()?;
         let op = match op_tok.kind {
-            TokenKind::Keyword(Keyword::As) => BinaryOperation::As,
-            TokenKind::Keyword(Keyword::AsQu) => BinaryOperation::AsQuestion,
-            TokenKind::Keyword(Keyword::AsEx) => BinaryOperation::AsExclamation,
+            TokenKind::As => BinaryOperation::As,
+            TokenKind::AsQu => BinaryOperation::AsQuestion,
+            TokenKind::AsEx => BinaryOperation::AsExclamation,
             _ => return Err(Error::ParseError(format!("expected as but got {:?}", op_tok)))
         };
         let rhs = self.factor()?;

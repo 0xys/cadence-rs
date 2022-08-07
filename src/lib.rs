@@ -322,7 +322,7 @@ mod tests {
         assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Prepare));
         assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::Execute));
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::As));
+        assert_eq!(lexer.tokenize().kind, TokenKind::As);
     }
 
     #[test]
@@ -331,29 +331,29 @@ mod tests {
         let mut lexer = Lexer::new(code);
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
-        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::As));
+        assert_eq!(lexer.tokenize().kind, TokenKind::As);
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
-        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::AsEx));
+        assert_eq!(lexer.tokenize().kind, TokenKind::AsEx);
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
-        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::AsQu));
+        assert_eq!(lexer.tokenize().kind, TokenKind::AsQu);
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("bb".to_string()));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("asa".to_string()));
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("s".to_string()));
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::As));
+        assert_eq!(lexer.tokenize().kind, TokenKind::As);
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Exclamation);
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
-        assert_eq!(lexer.tokenize().kind, TokenKind::Keyword(Keyword::AsQu));
+        assert_eq!(lexer.tokenize().kind, TokenKind::AsQu);
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b".to_string()));
     }
 

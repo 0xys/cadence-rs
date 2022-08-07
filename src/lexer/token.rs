@@ -76,6 +76,10 @@ pub enum TokenKind {
     BitwiseShiftRight,
     BitwiseShiftLeft,
 
+    As,
+    AsEx,   // as!
+    AsQu,    // as?
+
     String(String),
     Identifier(String),
     Keyword(Keyword),
@@ -137,10 +141,6 @@ pub enum Keyword {
     Transaction,
     Prepare,
     Execute,
-
-    As,
-    AsEx,   // as!
-    AsQu    // as?
 }
 
 impl Keyword {
@@ -196,8 +196,6 @@ impl Keyword {
             "transaction" => Self::Transaction,
             "prepare" => Self::Prepare,
             "execute" => Self::Execute,
-
-            "as" => Self::As,
             _ => {
                 return None
             }
