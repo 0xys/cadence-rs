@@ -1,4 +1,4 @@
-use crate::{lexer::token::{Token, TokenKind}, ast::ast::{Node, NodeKind, BinaryOperation}};
+use crate::{lexer::token::{Token, TokenKind}, ast::ast::{Node, NodeKind, BinaryOperation, UnaryOperation}};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Error {
@@ -290,7 +290,7 @@ impl BacktrackingParser {
     }
 
     fn as_term(&mut self) -> Result<Node, Error> {
-        let mut lhs = self.factor()?;
+        let mut lhs = self.unary_term()?;
 
         loop {
             if let Some(op) = self.as_op() {
@@ -301,7 +301,7 @@ impl BacktrackingParser {
                     TokenKind::AsQu => BinaryOperation::AsQuestion,
                     _ => return Err(Error::ParseError(format!("expected as as! as? but got {:?}", op.kind)))
                 };
-                let rhs = self.factor()?;
+                let rhs = self.unary_term()?;
                 lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), as_op))
             } else {
                 break;
@@ -311,18 +311,29 @@ impl BacktrackingParser {
         Ok(lhs)
     }
 
+    fn unary_term(&mut self) -> Result<Node, Error> {
+        let mut unary_ops = vec![];
+        loop {
+            if let Some(op) = self.unary_op() {
+                self.read()?;
+                let unary_op = match op.kind {
+                    TokenKind::Minus => UnaryOperation::Minus,
+                    TokenKind::Exclamation => UnaryOperation::Negate,
+                    TokenKind::Move => UnaryOperation::Move,
+                    _ => return Err(Error::ParseError(format!("expected - ! <- but got {:?}", op.kind)))
+                };
+                unary_ops.push(unary_op);
+            } else {
+                break;
+            }
+        }
+        let operand = self.factor()?;
+        Ok(Node::new(NodeKind::UnaryOperation(Box::new(operand), unary_ops)))
+    }
+
 }
 
 impl BacktrackingParser {
-    fn as_op(&mut self) -> Option<Token> {
-        if let Some(token) = self.peek() {
-            return match token.kind {
-                TokenKind::As | TokenKind::AsEx | TokenKind::AsQu => Some(token),
-                _ => None,
-            }
-        }
-        None
-    }
     fn logical_op(&mut self) -> Option<Token> {
         if let Some(token) = self.peek() {
             return match token.kind {
@@ -408,6 +419,24 @@ impl BacktrackingParser {
         if let Some(token) = self.peek() {
             return match token.kind {
                 TokenKind::Asterisk | TokenKind::Slash | TokenKind::Percent => Some(token),
+                _ => None,
+            }
+        }
+        None
+    }
+    fn as_op(&mut self) -> Option<Token> {
+        if let Some(token) = self.peek() {
+            return match token.kind {
+                TokenKind::As | TokenKind::AsEx | TokenKind::AsQu => Some(token),
+                _ => None,
+            }
+        }
+        None
+    }
+    fn unary_op(&mut self) -> Option<Token> {
+        if let Some(token) = self.peek() {
+            return match token.kind {
+                TokenKind::Minus | TokenKind::Exclamation | TokenKind::Move => Some(token),
                 _ => None,
             }
         }

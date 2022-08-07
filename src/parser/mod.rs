@@ -60,6 +60,25 @@ mod tests {
         assert_eq!(ast.to_string(), "NilCo{num(1), Add{num(2), Mul{As{num(3), num(4)}, num(5)}}}");
     }
 
+    #[test]
+    fn test_unary() {
+        let code  = "-1";
+        let ast = gen_ast(code);
+        assert_eq!(ast.to_string(), "[Minus]{num(1)}");
+
+        let code  = "1 + -1";
+        let ast = gen_ast(code);
+        assert_eq!(ast.to_string(), "Add{num(1), [Minus]{num(1)}}");
+
+        let code  = "-!<--1";
+        let ast = gen_ast(code);
+        assert_eq!(ast.to_string(), "[Minus, Negate, Move, Minus]{num(1)}");
+
+        let code  = "-1*-2";
+        let ast = gen_ast(code);
+        assert_eq!(ast.to_string(), "Mul{[Minus]{num(1)}, [Minus]{num(2)}}");
+    }
+
     fn gen_ast(code: &str) -> Node {
         let mut lexer = Lexer::new(code);
         let tokens = lexer.tokenize_all();

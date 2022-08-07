@@ -21,6 +21,7 @@ impl Display for Node {
 #[derive(Clone, Debug, PartialEq)]
 pub enum NodeKind {
     BinaryOperation(Box<Node>, Box<Node>, BinaryOperation),
+    UnaryOperation(Box<Node>, Vec<UnaryOperation>),
     TerminalString(String),
     TerminalVariable(String),
     TerminalNumber(String),
@@ -32,6 +33,20 @@ impl Display for NodeKind {
         match self {
             NodeKind::BinaryOperation(lhs, rhs, op)
                 => write!(f, "{}{{{}, {}}}", op, lhs.kind, rhs.kind),
+            NodeKind::UnaryOperation(node, ops)
+                => {
+                    if ops.len() > 0 {
+                        let mut s = String::from("[");
+                        for i in 0..ops.len()-1 {
+                            s.push_str(&format!("{}, ", &ops[i].to_string()))
+                        }
+                        s.push_str(&format!("{}", &ops[ops.len() - 1].to_string()));
+                        s.push_str("]");
+                        write!(f, "{}{{{}}}", s, node.kind)
+                    } else {
+                        write!(f, "{}", node)
+                    }
+                },
             NodeKind::TerminalString(str) => write!(f, "str({})", str),
             NodeKind::TerminalVariable(str) => write!(f, "var({})", str),
             NodeKind::TerminalNumber(str) => write!(f, "num({})", str),
@@ -79,6 +94,20 @@ pub enum BinaryOperation {
 }
 
 impl Display for BinaryOperation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let text = format!("{:?}", self);
+        write!(f, "{}", text)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum UnaryOperation {
+    Minus,
+    Negate,
+    Move,
+}
+
+impl Display for UnaryOperation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let text = format!("{:?}", self);
         write!(f, "{}", text)
