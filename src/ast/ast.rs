@@ -22,6 +22,7 @@ impl Display for Node {
 pub enum NodeKind {
     BinaryOperation(Box<Node>, Box<Node>, BinaryOperation),
     UnaryOperation(Box<Node>, Vec<UnaryOperation>),
+    Destroy(Box<Node>),
     TerminalString(String),
     TerminalVariable(String),
     TerminalNumber(String),
@@ -32,7 +33,7 @@ impl Display for NodeKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             NodeKind::BinaryOperation(lhs, rhs, op)
-                => write!(f, "{}{{{}, {}}}", op, lhs.kind, rhs.kind),
+                => write!(f, "{}{{{}, {}}}", op, lhs, rhs),
             NodeKind::UnaryOperation(node, ops)
                 => {
                     if ops.len() > 0 {
@@ -42,11 +43,12 @@ impl Display for NodeKind {
                         }
                         s.push_str(&format!("{}", &ops[ops.len() - 1].to_string()));
                         s.push_str("]");
-                        write!(f, "{}{{{}}}", s, node.kind)
+                        write!(f, "{}{{{}}}", s, node)
                     } else {
                         write!(f, "{}", node)
                     }
                 },
+            NodeKind::Destroy(node) => write!(f, "Destroy{{{}}}", node),
             NodeKind::TerminalString(str) => write!(f, "str({})", str),
             NodeKind::TerminalVariable(str) => write!(f, "var({})", str),
             NodeKind::TerminalNumber(str) => write!(f, "num({})", str),
@@ -113,7 +115,6 @@ impl Display for UnaryOperation {
         write!(f, "{}", text)
     }
 }
-
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Value {

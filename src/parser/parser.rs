@@ -1,4 +1,4 @@
-use crate::{lexer::token::{Token, TokenKind}, ast::ast::{Node, NodeKind, BinaryOperation, UnaryOperation}};
+use crate::{lexer::token::{Token, TokenKind, Keyword}, ast::ast::{Node, NodeKind, BinaryOperation, UnaryOperation}};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Error {
@@ -327,8 +327,34 @@ impl BacktrackingParser {
                 break;
             }
         }
-        let operand = self.factor()?;
+        let operand = self.primary_term()?;
         Ok(Node::new(NodeKind::UnaryOperation(Box::new(operand), unary_ops)))
+    }
+
+    fn primary_term(&mut self) -> Result<Node, Error> {
+        let token = self.read()?;
+        match token.kind {
+            TokenKind::Keyword(Keyword::Create) => self.create_term(),
+            TokenKind::Keyword(Keyword::Destroy) => self.destroy_term(),
+            TokenKind::BitwiseAnd => self.reference_term(),
+            _ => {
+                self.back()?;
+                self.factor()
+            },
+        }
+    }
+
+    fn create_term(&mut self) -> Result<Node, Error> {
+        Err(Error::ParseError("TODO: Create Exp not implemented".to_string()))
+    }
+
+    fn destroy_term(&mut self) -> Result<Node, Error> {
+        let node = self.expression()?;
+        Ok(Node::new(NodeKind::Destroy(Box::new(node))))
+    }
+
+    fn reference_term(&mut self) -> Result<Node, Error> {
+        Err(Error::ParseError("TODO: Reference Exp not implemented".to_string()))
     }
 
     fn factor(&mut self) -> Result<Node, Error> {

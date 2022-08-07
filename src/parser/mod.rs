@@ -79,6 +79,17 @@ mod tests {
         assert_eq!(ast.to_string(), "Mul{[Minus]{num(1)}, [Minus]{num(2)}}");
     }
 
+    #[test]
+    fn test_destroy() {
+        let code  = "destroy a";
+        let ast = gen_ast(code);
+        assert_eq!(ast.to_string(), "Destroy{id(a)}");
+
+        let code  = "-1*-2+destroy a";
+        let ast = gen_ast(code);
+        assert_eq!(ast.to_string(), "Add{Mul{[Minus]{num(1)}, [Minus]{num(2)}}, Destroy{id(a)}}");
+    }
+
     fn gen_ast(code: &str) -> Node {
         let mut lexer = Lexer::new(code);
         let tokens = lexer.tokenize_all();
