@@ -62,19 +62,28 @@ impl BacktrackingParser {
     }
 
     pub fn expression(&mut self) -> Result<Node, Error> {
-        self.eq_term()
+        self.logical_term()
     }
 
-    pub fn logical_term(&mut self) -> Result<Node, Error> {
-        let lhs = self.factor()?;
-        let op_tok = self.read()?;
-        let op = match op_tok.kind {
-            TokenKind::LogicalConjunction => BinaryOperation::AndAnd,
-            TokenKind::LogicalDisjunction => BinaryOperation::OrOr,
-            _ => return Err(Error::ParseError(format!("expected && or || but got {:?}", op_tok)))
-        };
-        let rhs = self.factor()?;
-        Ok(Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), op)))
+    fn logical_term(&mut self) -> Result<Node, Error> {
+        let mut lhs = self.eq_term()?;
+
+        loop {
+            if let Some(op) = self.logical_op() {
+                self.read()?;
+                let logi_op = match op.kind {
+                    TokenKind::LogicalConjunction => BinaryOperation::AndAnd,
+                    TokenKind::LogicalDisjunction => BinaryOperation::OrOr,
+                    _ => return Err(Error::ParseError(format!("expected && || but got {:?}", op.kind)))
+                };
+                let rhs = self.eq_term()?;
+                lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), logi_op))
+            } else {
+                break;
+            }
+        }
+
+        Ok(lhs)
     }
 
     fn eq_term(&mut self) -> Result<Node, Error> {
@@ -83,13 +92,13 @@ impl BacktrackingParser {
         loop {
             if let Some(op) = self.eq_op() {
                 self.read()?;
-                let nilco_op = match op.kind {
+                let eq_op = match op.kind {
                     TokenKind::EqualTo => BinaryOperation::Eq,
                     TokenKind::NotEqual => BinaryOperation::Neq,
                     _ => return Err(Error::ParseError(format!("expected = != but got {:?}", op.kind)))
                 };
                 let rhs = self.comp_term()?;
-                lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), nilco_op))
+                lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), eq_op))
             } else {
                 break;
             }
@@ -104,7 +113,7 @@ impl BacktrackingParser {
         loop {
             if let Some(op) = self.comp_op() {
                 self.read()?;
-                let nilco_op = match op.kind {
+                let comp_op = match op.kind {
                     TokenKind::LessThan => BinaryOperation::Lt,
                     TokenKind::LessThanOrEqual => BinaryOperation::Lte,
                     TokenKind::GreaterThan => BinaryOperation::Gt,
@@ -112,7 +121,7 @@ impl BacktrackingParser {
                     _ => return Err(Error::ParseError(format!("expected < <= > >= but got {:?}", op.kind)))
                 };
                 let rhs = self.nil_co_term()?;
-                lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), nilco_op))
+                lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), comp_op))
             } else {
                 break;
             }
@@ -264,7 +273,15 @@ impl BacktrackingParser {
 
         Ok(lhs)
     }
-
+    fn logical_op(&mut self) -> Option<Token> {
+        if let Some(token) = self.peek() {
+            return match token.kind {
+                TokenKind::LogicalConjunction | TokenKind::LogicalDisjunction => Some(token),
+                _ => None,
+            }
+        }
+        None
+    }
     fn eq_op(&mut self) -> Option<Token> {
         if let Some(token) = self.peek() {
             return match token.kind {
