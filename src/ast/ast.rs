@@ -64,7 +64,7 @@ pub enum BinaryOperation {
 
     Or,
 
-    QuestionDouble,
+    NilCo,
 
     Lt,
     Gt,

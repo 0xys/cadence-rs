@@ -131,20 +131,33 @@ impl BacktrackingParser {
     }
 
     fn nil_co_term(&mut self) -> Result<Node, Error> {
-        let mut lhs = self.or_term()?;
+        let lhs = self.or_term()?;
 
+        let mut rhs_vec = vec![];
         loop {
             if let Some(op) = self.nilco_op() {
                 self.read()?;
-                let nilco_op = match op.kind {
-                    TokenKind::QuestionDouble => BinaryOperation::QuestionDouble,
-                    _ => return Err(Error::ParseError(format!("expected ?? but got {:?}", op.kind)))
-                };
+                if op.kind != TokenKind::QuestionDouble {
+                    return Err(Error::ParseError(format!("expected ?? but got {:?}", op.kind)))
+                }
                 let rhs = self.or_term()?;
-                lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), nilco_op))
+                rhs_vec.push(rhs); // to handle right-associative nature of the operator
             } else {
                 break;
             }
+        }
+
+        // merge rhs from right to left if any.
+        if rhs_vec.len() > 0 {
+            let mut rhs = rhs_vec.pop().unwrap();
+            loop {
+                if let Some(next) = rhs_vec.pop() {
+                    rhs = Node::new(NodeKind::BinaryOperation(Box::new(next), Box::new(rhs), BinaryOperation::NilCo))
+                } else {
+                    break;
+                }
+            }
+            return Ok(Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), BinaryOperation::NilCo)))
         }
 
         Ok(lhs)

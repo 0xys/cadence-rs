@@ -34,8 +34,23 @@ mod tests {
     fn test_shift() {
         let code  = "1 << 2 >> 3 + 4";
         let ast = gen_ast(code);
-        
+
         assert_eq!(ast.to_string(), "Shir{Shil{num(1), num(2)}, Add{num(3), num(4)}}");
+    }
+
+    #[test]
+    fn test_nil_coerce() {
+        let code  = "1 ?? 2";
+        let ast = gen_ast(code);
+        assert_eq!(ast.to_string(), "NilCo{num(1), num(2)}");
+
+        let code  = "1 ?? 2 ?? 3";
+        let ast = gen_ast(code);
+        assert_eq!(ast.to_string(), "NilCo{num(1), NilCo{num(2), num(3)}}");
+        
+        let code  = "1*2 ?? 3+4 ?? 5 << 6 ?? 7&8 ?? 9^10 ?? 11|12";
+        let ast = gen_ast(code);
+        assert_eq!(ast.to_string(), "NilCo{Mul{num(1), num(2)}, NilCo{Add{num(3), num(4)}, NilCo{Shil{num(5), num(6)}, NilCo{And{num(7), num(8)}, NilCo{Xor{num(9), num(10)}, Or{num(11), num(12)}}}}}}");
     }
 
     fn gen_ast(code: &str) -> Node {
