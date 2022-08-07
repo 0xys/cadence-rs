@@ -414,7 +414,7 @@ impl BacktrackingParser {
         None
     }
 
-    pub fn factor(&mut self) -> Result<Node, Error> {
+    fn factor(&mut self) -> Result<Node, Error> {
         let token = self.read()?;
         if token.kind == TokenKind::ParenOpen {
             let node = self.expression()?;
@@ -427,7 +427,7 @@ impl BacktrackingParser {
         }
     }
 
-    pub fn terminal(&mut self) -> Result<Node, Error> {
+    fn terminal(&mut self) -> Result<Node, Error> {
         let token = self.read()?;
         match token.kind {
             TokenKind::String(str) => Ok(Node::new(NodeKind::TerminalString(str))),
