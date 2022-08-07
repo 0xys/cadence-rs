@@ -64,7 +64,29 @@ impl BacktrackingParser {
 
 impl BacktrackingParser {
     pub fn expression(&mut self) -> Result<Node, Error> {
-        self.logical_term()
+        self.as_term()
+    }
+
+    fn as_term(&mut self) -> Result<Node, Error> {
+        let mut lhs = self.logical_term()?;
+
+        loop {
+            if let Some(op) = self.as_op() {
+                self.read()?;
+                let as_op = match op.kind {
+                    TokenKind::As => BinaryOperation::As,
+                    TokenKind::AsEx => BinaryOperation::AsExclamation,
+                    TokenKind::AsQu => BinaryOperation::AsQuestion,
+                    _ => return Err(Error::ParseError(format!("expected as as! as? but got {:?}", op.kind)))
+                };
+                let rhs = self.logical_term()?;
+                lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), as_op))
+            } else {
+                break;
+            }
+        }
+
+        Ok(lhs)
     }
 
     fn logical_term(&mut self) -> Result<Node, Error> {
@@ -292,6 +314,15 @@ impl BacktrackingParser {
 }
 
 impl BacktrackingParser {
+    fn as_op(&mut self) -> Option<Token> {
+        if let Some(token) = self.peek() {
+            return match token.kind {
+                TokenKind::As | TokenKind::AsEx | TokenKind::AsQu => Some(token),
+                _ => None,
+            }
+        }
+        None
+    }
     fn logical_op(&mut self) -> Option<Token> {
         if let Some(token) = self.peek() {
             return match token.kind {
@@ -381,19 +412,6 @@ impl BacktrackingParser {
             }
         }
         None
-    }
-
-    pub fn as_term(&mut self) -> Result<Node, Error> {
-        let lhs = self.factor()?;
-        let op_tok = self.read()?;
-        let op = match op_tok.kind {
-            TokenKind::As => BinaryOperation::As,
-            TokenKind::AsQu => BinaryOperation::AsQuestion,
-            TokenKind::AsEx => BinaryOperation::AsExclamation,
-            _ => return Err(Error::ParseError(format!("expected as but got {:?}", op_tok)))
-        };
-        let rhs = self.factor()?;
-        Ok(Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), op)))
     }
 
     pub fn factor(&mut self) -> Result<Node, Error> {
