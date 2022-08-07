@@ -81,6 +81,7 @@ pub enum TokenKind {
     AsQu,    // as?
 
     String(String),
+    Number(String),
     Identifier(String),
     Keyword(Keyword),
 

@@ -339,6 +339,11 @@ impl<'a> Lexer<'a> {
                 }
             }
 
+            let bytes = identifier.as_bytes();
+            if b'0' <= bytes[0] && bytes[0] <= b'9' {
+                return Some(TokenKind::Number(identifier))
+            }
+
             return Some(TokenKind::Identifier(identifier))
         }
         None

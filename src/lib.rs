@@ -236,30 +236,30 @@ mod tests {
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("AbC".to_string()));
         assert_eq!(lexer.tokenize().kind, TokenKind::Question);
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("0".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("0".to_string()));
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("123".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("123".to_string()));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a1".to_string()));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a_3".to_string()));
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("3.1".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("3.1".to_string()));
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("1.".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("1.".to_string()));
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("a".to_string()));
         assert_eq!(lexer.tokenize().kind, TokenKind::BitwiseAnd);
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("1".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("1".to_string()));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("abc".to_string()));
         assert_eq!(lexer.tokenize().kind, TokenKind::None);
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("_d3".to_string()));
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("123".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("123".to_string()));
         assert_eq!(lexer.tokenize().kind, TokenKind::None); // period with whitespaces are None
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("2".to_string()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("2".to_string()));
     }
 
     #[test]
@@ -362,27 +362,27 @@ mod tests {
         let code = "0xa 0b10 0bb 0xx 0xAd 0.b0b 00b1 00xa";
         let mut lexer = Lexer::new(code);
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("0xa".to_owned()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("0xa".to_owned()));
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("0b10".to_owned()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("0b10".to_owned()));
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("0b".to_owned()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("0b".to_owned()));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b".to_owned()));
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("0x".to_owned()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("0x".to_owned()));
 
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("x".to_owned()));
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("0xAd".to_owned()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("0xAd".to_owned()));
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("0.".to_owned()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("0.".to_owned()));
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b0b".to_owned()));
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("00".to_owned()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("00".to_owned()));
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("b1".to_owned()));
 
-        assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("00".to_owned()));
+        assert_eq!(lexer.tokenize().kind, TokenKind::Number("00".to_owned()));
         assert_eq!(lexer.tokenize().kind, TokenKind::Identifier("xa".to_owned()));
     }
 

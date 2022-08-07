@@ -431,13 +431,8 @@ impl BacktrackingParser {
         let token = self.read()?;
         match token.kind {
             TokenKind::String(str) => Ok(Node::new(NodeKind::TerminalString(str))),
-            TokenKind::Identifier(id) => {
-                let begin = id.as_bytes()[0];
-                if b'0' <= begin && begin <= b'9' {
-                    return Ok(Node::new(NodeKind::TerminalNumber(id)))
-                }
-                Ok(Node::new(NodeKind::TerminalIdentifier(id)))
-            }
+            TokenKind::Identifier(id) => Ok(Node::new(NodeKind::TerminalIdentifier(id))),
+            TokenKind::Number(num) => Ok(Node::new(NodeKind::TerminalNumber(num))),
             _ => Err(Error::ParseError("not terminal".to_owned()))
         }
     }
