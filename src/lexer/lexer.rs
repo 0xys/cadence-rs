@@ -45,6 +45,18 @@ impl<'a> Lexer<'a> {
 		}
 	}
 
+    pub fn tokenize_all(&mut self) -> Vec<Token> {
+        let mut tokens = vec![];
+        loop {
+            let token = &self.tokenize();
+            tokens.push(token.clone());
+            if token.kind == TokenKind::EOF {
+                break;
+            }
+        }
+        tokens
+    }
+
 	pub fn tokenize(&mut self) -> Token {
 		self.read_spaces();
         self.read_comments();

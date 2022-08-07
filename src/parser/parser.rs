@@ -1,9 +1,9 @@
-use crate::lexer::token::Token;
+use crate::{lexer::token::{Token, TokenKind, Keyword}, ast::ast::{Node, NodeKind, BinaryOperation}};
 
-pub trait Parser {
-    fn read(&mut self) -> Option<Token>;
-    fn peek(&self) -> Option<Token>;
-    fn peekn(&self, n: usize) -> Option<Token>;
+#[derive(Clone, Debug, PartialEq)]
+pub enum Error {
+    EOF,
+    ParseError(String)
 }
 
 pub struct BacktrackingParser {
@@ -17,20 +17,167 @@ impl BacktrackingParser {
     }
 }
 
-impl Parser for BacktrackingParser {
-    fn read(&mut self) -> Option<Token> {
-        todo!()
+impl BacktrackingParser {
+    fn back(&mut self) -> Result<Token, Error> {
+        if self.cursor == 0 {
+            return Err(Error::ParseError("can't back from begining".to_owned()))
+        }
+        self.cursor -= 1;
+        Ok(self.tokens[self.cursor].clone())   
+    }
+
+    fn read(&mut self) -> Result<Token, Error> {
+        if self.cursor >= self.tokens.len() {
+            return Err(Error::EOF)
+        }
+        let current = self.cursor;
+        self.cursor += 1;
+        Ok(self.tokens[current].clone())
     }
 
     fn peek(&self) -> Option<Token> {
-        todo!()
+        if self.cursor >= self.tokens.len() {
+            return None
+        }
+        Some(self.tokens[self.cursor].clone())
     }
 
+    #[allow(dead_code)]
     fn peekn(&self, n: usize) -> Option<Token> {
-        todo!()
+        let cursor = self.cursor + n;
+        if cursor >= self.tokens.len() {
+            return None
+        }
+        Some(self.tokens[cursor].clone())
     }
-}
 
-pub fn parse_expression(p: &mut dyn Parser) {
+    fn expect_and_read(&mut self, kind: TokenKind) -> Result<(), Error> {
+        let token = self.read()?;
+        if token.kind == kind {
+            Ok(())
+        } else {
+            let err = format!("expected {:?} but got {:?}", kind, token.kind);
+            Err(Error::ParseError(err))
+        }
+    }
+
+    pub fn expression(&mut self) -> Result<Node, Error> {
+        self.additive_term()
+    }
+
+    pub fn logical_term(&mut self) -> Result<Node, Error> {
+        let lhs = self.factor()?;
+        let op_tok = self.read()?;
+        let op = match op_tok.kind {
+            TokenKind::LogicalConjunction => BinaryOperation::AndAnd,
+            TokenKind::LogicalDisjunction => BinaryOperation::OrOr,
+            _ => return Err(Error::ParseError(format!("expected && or || but got {:?}", op_tok)))
+        };
+        let rhs = self.factor()?;
+        Ok(Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), op)))
+    }
+
+    fn additive_term(&mut self) -> Result<Node, Error> {
+        let mut lhs = self.multiplicative_term()?;
+        
+        loop {
+            if let Some(op) = self.additive_op() {
+                self.read()?;
+                let add_op = match op.kind {
+                    TokenKind::Plus => BinaryOperation::Add,
+                    TokenKind::Minus => BinaryOperation::Sub,
+                    _ => return Err(Error::ParseError(format!("expected + - but got {:?}", op.kind)))
+                };
+                let rhs = self.multiplicative_term()?;
+                lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), add_op))
+            } else {
+                break;
+            }
+        }
+
+        Ok(lhs)
+    }
+
+    fn multiplicative_term(&mut self) -> Result<Node, Error> {
+        let mut lhs = self.factor()?;
+        
+        loop {
+            if let Some(op) = self.multiplicative_op() {
+                self.read()?;
+                let mul_op = match op.kind {
+                    TokenKind::Asterisk => BinaryOperation::Mul,
+                    TokenKind::Slash => BinaryOperation::Div,
+                    TokenKind::Percent => BinaryOperation::Mod,
+                    _ => return Err(Error::ParseError(format!("expected * / % but got {:?}", op.kind)))
+                };
+                let rhs = self.factor()?;
+                lhs = Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), mul_op))
+            } else {
+                break;
+            }
+        }
+
+        Ok(lhs)
+    }
+
+    fn additive_op(&mut self) -> Option<Token> {
+        if let Some(token) = self.peek() {
+            return match token.kind {
+                TokenKind::Plus | TokenKind::Minus => Some(token),
+                _ => None,
+            }
+        }
+        None
+    }
+    fn multiplicative_op(&mut self) -> Option<Token> {
+        if let Some(token) = self.peek() {
+            return match token.kind {
+                TokenKind::Asterisk | TokenKind::Slash | TokenKind::Percent => Some(token),
+                _ => None,
+            }
+        }
+        None
+    }
+
+    pub fn as_term(&mut self) -> Result<Node, Error> {
+        let lhs = self.factor()?;
+        let op_tok = self.read()?;
+        let op = match op_tok.kind {
+            TokenKind::Keyword(Keyword::As) => BinaryOperation::As,
+            TokenKind::Keyword(Keyword::AsQu) => BinaryOperation::AsQuestion,
+            TokenKind::Keyword(Keyword::AsEx) => BinaryOperation::AsExclamation,
+            _ => return Err(Error::ParseError(format!("expected as but got {:?}", op_tok)))
+        };
+        let rhs = self.factor()?;
+        Ok(Node::new(NodeKind::BinaryOperation(Box::new(lhs), Box::new(rhs), op)))
+    }
+
+    pub fn factor(&mut self) -> Result<Node, Error> {
+        let token = self.read()?;
+        if token.kind == TokenKind::ParenOpen {
+            let node = self.expression()?;
+            self.expect_and_read(TokenKind::ParenClose)?;
+            return Ok(node)
+        } else {
+            self.back()?;
+            let node = self.terminal()?;
+            return Ok(node)
+        }
+    }
+
+    pub fn terminal(&mut self) -> Result<Node, Error> {
+        let token = self.read()?;
+        match token.kind {
+            TokenKind::String(str) => Ok(Node::new(NodeKind::TerminalString(str))),
+            TokenKind::Identifier(id) => {
+                let begin = id.as_bytes()[0];
+                if b'0' <= begin && begin <= b'9' {
+                    return Ok(Node::new(NodeKind::TerminalNumber(id)))
+                }
+                Ok(Node::new(NodeKind::TerminalIdentifier(id)))
+            }
+            _ => Err(Error::ParseError("not terminal".to_owned()))
+        }
+    }
 
 }

@@ -48,8 +48,8 @@ pub enum TokenKind {
 
     At, // @
 
-    LogicalConjunction, // &
-    LogicalDisjunction, // |
+    LogicalConjunction, // &&
+    LogicalDisjunction, // ||
     Xor, // ^
    
     DoubleQuote, // "
@@ -71,8 +71,8 @@ pub enum TokenKind {
     Move,       // <-
     MoveForce,  // <-!
 
-    BitwiseAnd,
-    BitwiseOr,
+    BitwiseAnd, // &
+    BitwiseOr,  // |
     BitwiseShiftRight,
     BitwiseShiftLeft,
 
