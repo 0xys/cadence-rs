@@ -1,4 +1,4 @@
-use crate::{lexer::token::{Token, TokenKind, Keyword}, ast::ast::{Node, NodeKind, BinaryOperation, UnaryOperation, FullType, ArgumentExp}};
+use crate::{lexer::token::{Token, TokenKind, Keyword}, ast::ast::{Node, NodeKind, BinaryOperation, UnaryOperation, FullType, ArgumentExp, Expression}};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Error {
@@ -64,7 +64,8 @@ impl BacktrackingParser {
 
 impl BacktrackingParser {
     pub fn expression(&mut self) -> Result<Node, Error> {
-        self.logical_term()
+        let node = self.logical_term()?;
+        Ok(Node::new(NodeKind::Expression(Expression::new(node))))
     }
 
     fn logical_term(&mut self) -> Result<Node, Error> {

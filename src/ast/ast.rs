@@ -20,6 +20,7 @@ impl Display for Node {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum NodeKind {
+    Expression(Expression),
     BinaryOperation(Box<Node>, Box<Node>, BinaryOperation),
     UnaryOperation(Box<Node>, Vec<UnaryOperation>),
     Destroy(Box<Node>),
@@ -36,6 +37,7 @@ pub enum NodeKind {
 impl Display for NodeKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            NodeKind::Expression(node) => node.exp.fmt(f),
             NodeKind::BinaryOperation(lhs, rhs, op)
                 => write!(f, "{}{{{}, {}}}", op, lhs, rhs),
             NodeKind::UnaryOperation(node, ops)
@@ -73,7 +75,21 @@ impl Display for NodeKind {
     }
 }
 
-///
+#[derive(Clone, Debug, PartialEq)]
+pub struct Expression {
+    pub exp: Box<Node>,
+}
+impl Expression {
+    pub fn new(node: Node) -> Self {
+        Self { exp: Box::new(node) }
+    }
+}
+impl Display for Expression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.exp.fmt(f)
+    }
+}
+
 /// Shown according to operator precedences, higher to lower.
 #[derive(Clone, Debug, PartialEq)]
 pub enum BinaryOperation {
@@ -145,6 +161,9 @@ impl Display for FullType {
         }
     }
 }
+
+
+
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ArgumentExp {
