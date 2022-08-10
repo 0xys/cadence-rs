@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use super::expression::{ConditionalExpression, OrExpression};
+
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Node {
@@ -21,6 +23,21 @@ impl Display for Node {
 #[derive(Clone, Debug, PartialEq)]
 pub enum NodeKind {
     Expression(Expression),
+    Conditional(ConditionalExpression),
+    OrExpression(OrExpression),
+    AndExpression(AndExpression),
+    EqualExpression(EqualExpression),
+    RelationExpression(RelationExpression),
+    NilCoalescingExpression(NilCoalescingExpression),
+    BitwiseOrExpression(BitwiseOrExpression),
+    MultiplicativeExpression(MultiplicativeExpression),
+    CastingExpression(CastingExpression),
+    UnaryExpression(UnaryExpression),
+    PrimaryExpression(PrimaryExpression),
+    PostfixExpression(PrimaryExpression),
+
+
+
     BinaryOperation(Box<Node>, Box<Node>, BinaryOperation),
     UnaryOperation(Box<Node>, Vec<UnaryOperation>),
     Destroy(Box<Node>),
@@ -146,44 +163,5 @@ impl Display for UnaryOperation {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum FullType {
-    AuthReference(String),
-    Reference(String),
-    Inner(String),
-}
-impl Display for FullType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::AuthReference(str) => write!(f, "Type{{auth &{}}}", str),
-            Self::Reference(str) => write!(f, "Type{{&{}}}", str),
-            Self::Inner(str) => write!(f, "Type{{{}}}", str),
-        }
-    }
-}
 
 
-
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct ArgumentExp {
-    pub id: Option<String>,
-    pub exp: Box<Node>,
-}
-impl ArgumentExp {
-    pub fn new(id: Option<String>, exp: Node) -> Self {
-        Self { id: id, exp: Box::new(exp) }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct Value {
-    pub value_type: FullType,
-    pub value: usize,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct TypeAnnotation {
-    pub is_resource: bool,
-    pub full_type: FullType,
-}
