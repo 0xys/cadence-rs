@@ -1,6 +1,5 @@
 use std::fmt::Display;
 
-
 #[derive(Clone, Debug, PartialEq)]
 pub struct Expression {
     node: ConditionalExpression
